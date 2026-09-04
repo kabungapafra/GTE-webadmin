@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#F7F1E3; -webkit-font-smoothing:antialiased; }
+  * { box-sizing:border-box; }
+  a { color:#8A6A22; text-decoration:none; }
+  a:hover { color:#B8862F; }
+  input, select, textarea, button { font-family:'DM Sans', system-ui, sans-serif; }
+  ::-webkit-scrollbar { width:9px; height:9px; }
+  ::-webkit-scrollbar-thumb { background:#D6CAAE; border-radius:8px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+</style>
+</helmet>
+
+<div style="display:grid; grid-template-columns:226px 1fr; height:100vh; overflow:hidden; font-family:'DM Sans',system-ui,sans-serif; color:#22301F; background:#F7F1E3;">
+
+  <aside style="background:#1E3A2B; color:#EFE7D2; display:flex; flex-direction:column; padding:18px 12px; gap:18px; overflow-y:auto;">
+    <div style="display:flex; align-items:center; gap:10px; padding:0 6px;">
+      <div style="width:30px; height:30px; border-radius:50%; background:#C99A34; display:flex; align-items:center; justify-content:center; font-family:'DM Sans',sans-serif; font-weight:700; letter-spacing:-0.02em; font-size:16px; color:#1E3A2B; flex:none;">G</div>
+      <div style="display:flex; flex-direction:column; line-height:1.1;">
+        <span style="font-family:'DM Sans',sans-serif; font-weight:700; letter-spacing:-0.03em; font-size:16px;">Golden Tai</span>
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:0.18em; color:#8FA88B; text-transform:uppercase;">Operations</span>
+      </div>
+    </div>
+
+    <sc-for list="{{ navGroups }}" as="g" hint-placeholder-count="3">
+      <div style="display:flex; flex-direction:column; gap:2px;">
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:0.16em; text-transform:uppercase; color:#6C8A69; padding:0 10px 5px;">{{ g.label }}</span>
+        <sc-for list="{{ g.items }}" as="item" hint-placeholder-count="4">
+          <div onClick="{{ item.onClick }}" style="display:flex; align-items:center; gap:9px; padding:7px 10px; border-radius:7px; cursor:pointer; font-size:13px; font-weight:500; background:{{ item.bg }}; color:{{ item.fg }};" style-hover="background:#2A4C37;">
+            <span style="flex:1;">{{ item.label }}</span>
+            <sc-if value="{{ item.badge }}" hint-placeholder-val="{{ true }}">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; padding:2px 6px; border-radius:20px; background:{{ item.badgeBg }}; color:#22301F; font-weight:500;">{{ item.badge }}</span>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </sc-for>
+
+    <div style="margin-top:auto; display:flex; flex-direction:column; gap:10px; padding-top:12px;">
+      <div style="border:1px solid #2F5540; border-radius:9px; padding:11px;">
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:0.16em; text-transform:uppercase; color:#8FA88B; margin-bottom:7px;">24/7 line</div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:7px; height:7px; border-radius:50%; background:#8CC07C; flex:none;"></div>
+          <span style="font-size:12px;">{{ onShift }} on shift</span>
+        </div>
+        <div style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#8FA88B; margin-top:4px;">+256 700 000 000</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:9px; padding:2px 6px;">
+        <div style="width:25px; height:25px; border-radius:50%; background:#C99A34; color:#1E3A2B; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:600; flex:none;">TK</div>
+        <div style="display:flex; flex-direction:column; line-height:1.25;">
+          <span style="font-size:12px;">Tai Kamau</span>
+          <span style="font-size:10px; color:#8FA88B;">Owner · full access</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main style="overflow-y:auto; display:flex; flex-direction:column; position:relative;">
+    <header style="position:sticky; top:0; z-index:6; background:rgba(247,241,227,0.95); backdrop-filter:blur(8px); border-bottom:1px solid #E3D9C0; padding:14px 26px; display:flex; align-items:center; gap:16px;">
+      <div style="display:flex; flex-direction:column; gap:2px; min-width:0;">
+        <h1 style="margin:0; font-family:'DM Sans',sans-serif; font-size:23px; font-weight:700; letter-spacing:-0.032em; line-height:1.12;">{{ title }}</h1>
+        <span style="font-size:11.5px; color:#6E7A66;">{{ subtitle }}</span>
+      </div>
+      <div style="flex:1;"></div>
+      <div style="display:flex; align-items:center; gap:8px; border:1px solid #E3D9C0; background:#FFFCF4; border-radius:7px; padding:7px 11px; width:214px;">
+        <span style="color:#A39A80; font-size:13px;">⌕</span>
+        <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Search party, ref, plate" style="border:none; outline:none; background:transparent; font-size:12.5px; width:100%; color:#22301F;">
+      </div>
+      <button onClick="{{ newEnquiry }}" style="border:none; background:#1E3A2B; color:#F7F1E3; border-radius:7px; padding:8px 14px; font-size:12.5px; font-weight:500; cursor:pointer;" style-hover="background:#2A4C37;">+ New enquiry</button>
+    </header>
+
+    <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+      <div style="position:fixed; bottom:22px; left:50%; transform:translateX(-50%); z-index:40; background:#1E3A2B; color:#EFE7D2; padding:11px 18px; border-radius:8px; font-size:13px; box-shadow:0 12px 34px rgba(30,58,43,0.3); display:flex; align-items:center; gap:10px;">
+        <span style="color:#C99A34;">●</span><span>{{ toast }}</span>
+      </div>
+    </sc-if>
+
+    <!-- ═══ PIPELINE ═══ -->
+    <sc-if value="{{ isPipeline }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:18px 26px 40px; display:flex; flex-direction:column; gap:16px;">
+        <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:11px;">
+          <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="5">
+            <div style="border:1px solid #E3D9C0; border-radius:10px; background:#FFFCF4; padding:12px 14px;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.13em; text-transform:uppercase; color:#8E8A72;">{{ k.label }}</div>
+              <div style="font-family:'DM Sans',sans-serif; font-weight:700; letter-spacing:-0.03em; font-size:24px; margin-top:5px; line-height:1;">{{ k.value }}</div>
+              <div style="font-size:11px; color:#7B8272; margin-top:3px;">{{ k.note }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(5,minmax(206px,1fr)); gap:11px; align-items:start; overflow-x:auto; padding-bottom:6px;">
+          <sc-for list="{{ columns }}" as="col" hint-placeholder-count="5">
+            <div style="display:flex; flex-direction:column; gap:9px; background:#F1E9D5; border:1px solid #E3D9C0; border-radius:11px; padding:11px 10px 14px; min-height:220px;">
+              <div style="display:flex; align-items:center; gap:8px; padding:0 3px;">
+                <div style="width:8px; height:8px; border-radius:2px; background:{{ col.color }}; flex:none;"></div>
+                <span style="font-size:12px; font-weight:600;">{{ col.label }}</span>
+                <div style="flex:1;"></div>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#8E8A72;">{{ col.count }}</span>
+              </div>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#8A6A22; padding:0 3px;">{{ col.value }}</span>
+              <sc-for list="{{ col.cards }}" as="c" hint-placeholder-count="2">
+                <div onClick="{{ c.open }}" style="background:#FFFCF4; border:1px solid #E3D9C0; border-left:3px solid {{ c.edge }}; border-radius:9px; padding:11px 12px; display:flex; flex-direction:column; gap:7px; cursor:pointer;" style-hover="border-color:#C99A34;">
+                  <div style="display:flex; justify-content:space-between; gap:8px; align-items:baseline;">
+                    <span style="font-size:13px; font-weight:600; line-height:1.25; min-width:0; overflow-wrap:anywhere;">{{ c.party }}</span>
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:#A39A80; flex:none; white-space:nowrap;">{{ c.ref }}</span>
+                  </div>
+                  <span style="font-size:11.5px; color:#7B8272; line-height:1.35;">{{ c.route }}</span>
+                  <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; padding:2px 6px; border-radius:4px; background:#F1E9D5; color:#5F6857;">{{ c.dates }}</span>
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; padding:2px 6px; border-radius:4px; background:#F1E9D5; color:#5F6857;">{{ c.pax }}p</span>
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; padding:2px 6px; border-radius:4px; background:#F1E9D5; color:#5F6857;">{{ c.lang }}</span>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px;">{{ c.money }}</span>
+                    <div style="flex:1;"></div>
+                    <sc-for list="{{ c.dots }}" as="d" hint-placeholder-count="3">
+                      <span title="{{ d.tip }}" style="width:7px; height:7px; border-radius:50%; background:{{ d.color }};"></span>
+                    </sc-for>
+                  </div>
+                  <sc-if value="{{ c.alert }}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size:11px; color:#A8492B; line-height:1.3;">{{ c.alert }}</span>
+                  </sc-if>
+                </div>
+              </sc-for>
+              <sc-if value="{{ col.empty }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:11.5px; color:#A39A80; padding:8px 3px; font-style:italic;">Nothing here</span>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ═══ ENQUIRIES + QUOTE ═══ -->
+    <sc-if value="{{ isEnquiries }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid; grid-template-columns:minmax(430px,1fr) 388px; flex:1; min-height:0; overflow-x:auto;">
+        <section style="padding:18px 22px 40px; display:flex; flex-direction:column; gap:13px; border-right:1px solid #E3D9C0; min-width:0;">
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <sc-for list="{{ filters }}" as="f" hint-placeholder-count="5">
+              <div onClick="{{ f.onClick }}" style="cursor:pointer; padding:6px 12px; border-radius:20px; font-size:12.5px; border:1px solid {{ f.border }}; background:{{ f.bg }}; color:{{ f.fg }}; display:flex; gap:7px;">
+                <span>{{ f.label }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; opacity:0.6;">{{ f.count }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="border:1px solid #E3D9C0; border-radius:11px; background:#FFFCF4; overflow-x:auto;">
+            <div style="display:grid; grid-template-columns:1.6fr 0.9fr 0.45fr 1.2fr 0.6fr 0.5fr; gap:10px; padding:9px 15px; border-bottom:1px solid #EEE5CF; min-width:520px; font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.13em; text-transform:uppercase; color:#8E8A72;">
+              <span>Traveller</span><span>Dates</span><span>Pax</span><span>Route interest</span><span>Value</span><span>Age</span>
+            </div>
+            <sc-for list="{{ enquiryRows }}" as="e" hint-placeholder-count="7">
+              <div onClick="{{ e.open }}" style="display:grid; grid-template-columns:1.6fr 0.9fr 0.45fr 1.2fr 0.6fr 0.5fr; gap:10px; padding:12px 15px; border-bottom:1px solid #F2EBD9; cursor:pointer; align-items:center; min-width:520px; background:{{ e.rowBg }}; border-left:3px solid {{ e.rowEdge }};" style-hover="background:#FBF6E8;">
+                <div style="display:flex; flex-direction:column; gap:2px; min-width:0;">
+                  <span style="font-size:13px; font-weight:500;">{{ e.name }}</span>
+                  <span style="font-size:11px; color:#7B8272; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ e.country }} · {{ e.source }}</span>
+                </div>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#4A5344;">{{ e.dates }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#4A5344;">{{ e.pax }}</span>
+                <span style="font-size:12px; color:#4A5344; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ e.route }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#8A6A22;">{{ e.value }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:{{ e.ageColor }};">{{ e.age }}</span>
+              </div>
+            </sc-for>
+            <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:26px 15px; text-align:center; font-size:12.5px; color:#A39A80; font-style:italic;">No enquiries match that.</div>
+            </sc-if>
+          </div>
+        </section>
+
+        <aside style="padding:18px 22px 40px; display:flex; flex-direction:column; gap:15px; background:#F1E9D5; overflow-y:auto;">
+          <div style="display:flex; flex-direction:column; gap:5px;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.14em; text-transform:uppercase; color:#8E8A72;">{{ sel.stage }} · {{ sel.ref }}</span>
+            <h2 style="margin:0; font-family:'DM Sans',sans-serif; font-size:24px; font-weight:700; letter-spacing:-0.032em; line-height:1.15;">{{ sel.name }}</h2>
+            <span style="font-size:12px; color:#6E7A66;">{{ sel.email }} · {{ sel.country }}</span>
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:9px;">
+            <sc-for list="{{ sel.facts }}" as="f" hint-placeholder-count="4">
+              <div style="background:#FFFCF4; border:1px solid #E3D9C0; border-radius:9px; padding:9px 11px;">
+                <div style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:0.12em; text-transform:uppercase; color:#8E8A72;">{{ f.k }}</div>
+                <div style="font-size:12.5px; margin-top:3px; font-weight:500;">{{ f.v }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="background:#FFFCF4; border:1px solid #E3D9C0; border-radius:10px; padding:13px; font-size:12.5px; line-height:1.55; color:#3A4436; font-style:italic;">{{ sel.message }}</div>
+
+          <div style="background:#1E3A2B; border-radius:11px; padding:15px; color:#EFE7D2; display:flex; flex-direction:column; gap:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:baseline;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.14em; text-transform:uppercase; color:#8FA88B;">Quote builder</span>
+              <span style="font-size:11.5px; color:#8FA88B;">{{ quote.perPerson }} pp</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:9px;">
+              <sc-for list="{{ quote.rows }}" as="r" hint-placeholder-count="4">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <span style="flex:1; font-size:12.5px;">{{ r.label }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8FA88B; width:66px; text-align:right;">{{ r.detail }}</span>
+                  <div style="display:flex; align-items:center; gap:5px;">
+                    <button onClick="{{ r.dec }}" style="width:22px; height:22px; border-radius:5px; border:1px solid #2F5540; background:#24422F; color:#EFE7D2; cursor:pointer; font-size:13px; line-height:1;" style-hover="border-color:#C99A34;">−</button>
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; width:30px; text-align:center;">{{ r.value }}</span>
+                    <button onClick="{{ r.inc }}" style="width:22px; height:22px; border-radius:5px; border:1px solid #2F5540; background:#24422F; color:#EFE7D2; cursor:pointer; font-size:13px; line-height:1;" style-hover="border-color:#C99A34;">+</button>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="height:1px; background:#2F5540;"></div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+              <span style="font-size:12.5px; color:#8FA88B;">Quote total</span>
+              <span style="font-family:'DM Sans',sans-serif; font-weight:700; letter-spacing:-0.03em; font-size:28px; line-height:1; color:#DCAE45;">{{ quote.total }}</span>
+            </div>
+            <button onClick="{{ sendQuote }}" style="border:none; background:#C99A34; color:#1E3A2B; border-radius:7px; padding:10px; font-size:13px; font-weight:600; cursor:pointer;" style-hover="background:#DCAE45;">{{ quoteCta }}</button>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.14em; text-transform:uppercase; color:#8E8A72;">Activity</span>
+            <sc-for list="{{ sel.timeline }}" as="t" hint-placeholder-count="3">
+              <div style="display:flex; gap:10px; align-items:flex-start;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#8E8A72; width:50px; flex:none; padding-top:2px;">{{ t.when }}</span>
+                <span style="font-size:12.5px; color:#4A5344; line-height:1.45;">{{ t.what }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </aside>
+      </div>
+    </sc-if>
+
+    <!-- ═══ ON THE ROAD ═══ -->
+    <sc-if value="{{ isOps }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:18px 26px 42px; display:grid; grid-template-columns:minmax(0,1fr) 332px; gap:20px; align-items:start;">
+        <div style="display:flex; flex-direction:column; gap:12px; min-width:0;">
+          <sc-for list="{{ trips }}" as="t" hint-placeholder-count="3">
+            <div style="border:1px solid #E3D9C0; border-left:4px solid {{ t.edge }}; border-radius:11px; background:#FFFCF4; padding:15px 17px; display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:16px; align-items:center;">
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-size:14px; font-weight:600;">{{ t.party }}</span>
+                <span style="font-size:11.5px; color:#7B8272;">{{ t.route }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#8E8A72; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ t.plate }} · {{ t.vehicle }}</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:5px;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:0.12em; text-transform:uppercase; color:#8E8A72;">Progress</span>
+                <span style="font-size:12.5px; font-weight:500;">{{ t.dayLabel }}</span>
+                <div style="height:5px; background:#EEE5CF; border-radius:4px; overflow:hidden;">
+                  <div style="height:100%; background:#3E7A52; width:{{ t.pct }};"></div>
+                </div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:0.12em; text-transform:uppercase; color:#8E8A72;">Tonight</span>
+                <span style="font-size:12.5px; font-weight:500;">{{ t.lodge }}</span>
+                <span style="font-size:11px; color:{{ t.lodgeColor }};">{{ t.lodgeStatus }}</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:7px; align-items:flex-end;">
+                <span style="font-size:11px; padding:4px 10px; border-radius:20px; background:{{ t.pillBg }}; color:{{ t.pillFg }}; font-weight:500;">{{ t.flag }}</span>
+                <button onClick="{{ t.call }}" style="border:1px solid #E3D9C0; background:#FFFCF4; border-radius:6px; padding:6px 11px; font-size:12px; cursor:pointer; color:#4A5344; white-space:nowrap;" style-hover="border-color:#C99A34;">Call driver</button>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="border:1px solid #E3D9C0; border-radius:11px; background:#FFFCF4; padding:15px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.14em; text-transform:uppercase; color:#8E8A72; margin-bottom:11px;">Support log · today</div>
+            <div style="display:flex; flex-direction:column; gap:11px;">
+              <sc-for list="{{ incidents }}" as="i" hint-placeholder-count="3">
+                <div style="display:flex; flex-direction:column; gap:3px; padding-bottom:11px; border-bottom:1px solid #F2EBD9;">
+                  <div style="display:flex; justify-content:space-between; gap:8px;">
+                    <span style="font-size:12.5px; font-weight:500;">{{ i.what }}</span>
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#8E8A72; flex:none;">{{ i.at }}</span>
+                  </div>
+                  <span style="font-size:11.5px; color:#7B8272; line-height:1.4;">{{ i.where }} · {{ i.status }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="border-radius:11px; background:#1E3A2B; color:#EFE7D2; padding:15px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.14em; text-transform:uppercase; color:#8FA88B; margin-bottom:9px;">Handovers tomorrow</div>
+            <sc-for list="{{ handovers }}" as="h" hint-placeholder-count="3">
+              <div style="display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid rgba(239,231,210,0.15);">
+                <span style="font-size:12.5px;">{{ h.who }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8FA88B;">{{ h.time }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="border:1px solid #E3D9C0; border-radius:11px; background:#FFFCF4; padding:15px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.14em; text-transform:uppercase; color:#8E8A72; margin-bottom:10px;">Crew on shift</div>
+            <sc-for list="{{ crew }}" as="c" hint-placeholder-count="4">
+              <div style="display:flex; align-items:center; gap:9px; padding:6px 0;">
+                <div style="width:22px; height:22px; border-radius:50%; background:{{ c.avBg }}; color:#1E3A2B; display:flex; align-items:center; justify-content:center; font-size:9.5px; font-weight:600; flex:none;">{{ c.initials }}</div>
+                <span style="font-size:12.5px; flex:1;">{{ c.name }}</span>
+                <span style="font-size:11px; color:#7B8272;">{{ c.role }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ═══ FLEET ═══ -->
+    <sc-if value="{{ isFleet }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:18px 26px 42px; display:flex; flex-direction:column; gap:16px;">
+        <div style="display:flex; gap:11px;">
+          <sc-for list="{{ fleetStats }}" as="s" hint-placeholder-count="4">
+            <div style="flex:1; border:1px solid #E3D9C0; border-radius:10px; background:#FFFCF4; padding:12px 14px;">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.13em; text-transform:uppercase; color:#8E8A72;">{{ s.label }}</div>
+              <div style="font-family:'DM Sans',sans-serif; font-weight:700; letter-spacing:-0.03em; font-size:24px; margin-top:5px; line-height:1;">{{ s.value }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="border:1px solid #E3D9C0; border-radius:11px; background:#FFFCF4; overflow:hidden;">
+          <div style="display:flex; padding:11px 16px; border-bottom:1px solid #EEE5CF; align-items:center; gap:14px; flex-wrap:wrap;">
+            <button onClick="{{ prevMonth }}" style="border:1px solid #E3D9C0; background:#FFFCF4; border-radius:6px; width:26px; height:26px; cursor:pointer; color:#4A5344;" style-hover="border-color:#C99A34;">‹</button>
+            <span style="font-family:'DM Sans',sans-serif; font-weight:700; letter-spacing:-0.03em; font-size:18px; min-width:150px;">{{ monthLabel }}</span>
+            <button onClick="{{ nextMonth }}" style="border:1px solid #E3D9C0; background:#FFFCF4; border-radius:6px; width:26px; height:26px; cursor:pointer; color:#4A5344;" style-hover="border-color:#C99A34;">›</button>
+            <div style="flex:1;"></div>
+            <div style="display:flex; gap:13px;">
+              <sc-for list="{{ legend }}" as="l" hint-placeholder-count="4">
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <div style="width:10px; height:10px; border-radius:3px; background:{{ l.color }};"></div>
+                  <span style="font-size:11.5px; color:#6E7A66;">{{ l.label }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="padding:14px 16px 18px; overflow-x:auto;">
+            <div style="display:grid; grid-template-columns:150px repeat(21, minmax(28px,1fr)); gap:4px; align-items:center;">
+              <span></span>
+              <sc-for list="{{ days }}" as="d" hint-placeholder-count="21">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; text-align:center; color:{{ d.color }};">{{ d.n }}</span>
+              </sc-for>
+              <sc-for list="{{ fleetRows }}" as="row" hint-placeholder-count="6">
+                <div style="display:flex; flex-direction:column; gap:1px; padding-right:8px;">
+                  <span style="font-size:12.5px; font-weight:500;">{{ row.name }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8E8A72;">{{ row.plate }} · {{ row.rate }}</span>
+                </div>
+                <sc-for list="{{ row.cells }}" as="c" hint-placeholder-count="21">
+                  <div onClick="{{ c.click }}" title="{{ c.tip }}" style="height:26px; border-radius:4px; background:{{ c.bg }}; display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:9px; color:{{ c.fg }}; cursor:pointer;" style-hover="outline:1.5px solid #C99A34;">{{ c.mark }}</div>
+                </sc-for>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ═══ PERMITS ═══ -->
+    <sc-if value="{{ isPermits }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:18px 26px 42px; display:flex; flex-direction:column; gap:14px;">
+        <div style="border:1px solid #D9B776; background:#F8EED6; border-radius:11px; padding:14px 17px; display:flex; align-items:center; gap:14px;">
+          <span style="font-family:'DM Sans',sans-serif; font-weight:700; letter-spacing:-0.03em; font-size:28px; line-height:1; color:#8A6A22;">{{ permitAlertCount }}</span>
+          <div style="display:flex; flex-direction:column; gap:2px;">
+            <span style="font-size:13.5px; font-weight:600;">Permits still unconfirmed inside 60 days</span>
+            <span style="font-size:12px; color:#6E7A66;">UWA holds expire in deadline order — confirm Bwindi 12 Nov first.</span>
+          </div>
+          <div style="flex:1;"></div>
+          <button onClick="{{ confirmAllPermits }}" style="border:none; background:#1E3A2B; color:#F7F1E3; border-radius:7px; padding:9px 15px; font-size:12.5px; cursor:pointer;" style-hover="background:#2A4C37;">Confirm all held</button>
+        </div>
+
+        <div style="border:1px solid #E3D9C0; border-radius:11px; background:#FFFCF4; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:1.15fr 0.85fr 0.4fr 1.1fr 0.75fr 0.8fr; gap:11px; padding:9px 16px; border-bottom:1px solid #EEE5CF; font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.13em; text-transform:uppercase; color:#8E8A72;">
+            <span>Park / activity</span><span>Tracking date</span><span>Pax</span><span>Party</span><span>Deadline</span><span>State</span>
+          </div>
+          <sc-for list="{{ permits }}" as="p" hint-placeholder-count="7">
+            <div style="display:grid; grid-template-columns:1.15fr 0.85fr 0.4fr 1.1fr 0.75fr 0.8fr; gap:11px; padding:12px 16px; border-bottom:1px solid #F2EBD9; align-items:center;">
+              <div style="display:flex; flex-direction:column; gap:2px;">
+                <span style="font-size:12.5px; font-weight:500;">{{ p.park }}</span>
+                <span style="font-size:11px; color:#7B8272;">{{ p.activity }}</span>
+              </div>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px;">{{ p.date }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px;">{{ p.pax }}</span>
+              <span style="font-size:12px;">{{ p.party }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:{{ p.dlColor }};">{{ p.deadline }}</span>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:11px; padding:4px 9px; border-radius:20px; background:{{ p.pillBg }}; color:{{ p.pillFg }}; font-weight:500;">{{ p.state }}</span>
+                <sc-if value="{{ p.canConfirm }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ p.confirm }}" style="border:1px solid #E3D9C0; background:#FFFCF4; border-radius:5px; padding:3px 8px; font-size:11px; cursor:pointer; color:#4A5344;" style-hover="border-color:#C99A34;">Confirm</button>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ═══ LODGES ═══ -->
+    <sc-if value="{{ isLodges }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:18px 26px 42px; display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex; gap:6px;">
+          <sc-for list="{{ lodgeFilters }}" as="f" hint-placeholder-count="3">
+            <div onClick="{{ f.onClick }}" style="cursor:pointer; padding:6px 12px; border-radius:20px; font-size:12.5px; border:1px solid {{ f.border }}; background:{{ f.bg }}; color:{{ f.fg }};">{{ f.label }}</div>
+          </sc-for>
+        </div>
+        <div style="border:1px solid #E3D9C0; border-radius:11px; background:#FFFCF4; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:0.7fr 1.3fr 1.1fr 0.5fr 0.7fr 0.9fr; gap:11px; padding:9px 16px; border-bottom:1px solid #EEE5CF; font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.13em; text-transform:uppercase; color:#8E8A72;">
+            <span>Night</span><span>Lodge</span><span>Party</span><span>Rms</span><span>Rate</span><span>State</span>
+          </div>
+          <sc-for list="{{ lodgeRows }}" as="l" hint-placeholder-count="8">
+            <div style="display:grid; grid-template-columns:0.7fr 1.3fr 1.1fr 0.5fr 0.7fr 0.9fr; gap:11px; padding:12px 16px; border-bottom:1px solid #F2EBD9; align-items:center;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px;">{{ l.night }}</span>
+              <div style="display:flex; flex-direction:column; gap:2px;">
+                <span style="font-size:12.5px; font-weight:500;">{{ l.lodge }}</span>
+                <span style="font-size:11px; color:#7B8272;">{{ l.park }}</span>
+              </div>
+              <span style="font-size:12px;">{{ l.party }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px;">{{ l.rooms }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#8A6A22;">{{ l.rate }}</span>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:11px; padding:4px 9px; border-radius:20px; background:{{ l.pillBg }}; color:{{ l.pillFg }}; font-weight:500;">{{ l.state }}</span>
+                <sc-if value="{{ l.canChase }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ l.chase }}" style="border:1px solid #E3D9C0; background:#FFFCF4; border-radius:5px; padding:3px 8px; font-size:11px; cursor:pointer; color:#4A5344;" style-hover="border-color:#C99A34;">Chase</button>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ═══ PAYMENTS ═══ -->
+    <sc-if value="{{ isPayments }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:18px 26px 42px; display:flex; flex-direction:column; gap:16px;">
+        <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:11px;">
+          <sc-for list="{{ payStats }}" as="s" hint-placeholder-count="4">
+            <div style="border:1px solid #E3D9C0; border-radius:10px; background:{{ s.bg }}; padding:13px 15px; color:{{ s.fg }};">
+              <div style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.13em; text-transform:uppercase; opacity:0.7;">{{ s.label }}</div>
+              <div style="font-family:'DM Sans',sans-serif; font-weight:700; letter-spacing:-0.03em; font-size:25px; margin-top:5px; line-height:1;">{{ s.value }}</div>
+              <div style="font-size:11px; margin-top:3px; opacity:0.75;">{{ s.note }}</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="border:1px solid #E3D9C0; border-radius:11px; background:#FFFCF4; overflow:hidden;">
+          <div style="display:grid; grid-template-columns:0.7fr 1.2fr 0.9fr 0.8fr 0.8fr 0.9fr; gap:11px; padding:9px 16px; border-bottom:1px solid #EEE5CF; font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.13em; text-transform:uppercase; color:#8E8A72;">
+            <span>Invoice</span><span>Party</span><span>Total</span><span>Paid</span><span>Due</span><span>State</span>
+          </div>
+          <sc-for list="{{ invoices }}" as="i" hint-placeholder-count="6">
+            <div style="display:grid; grid-template-columns:0.7fr 1.2fr 0.9fr 0.8fr 0.8fr 0.9fr; gap:11px; padding:12px 16px; border-bottom:1px solid #F2EBD9; align-items:center;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#8A6A22;">{{ i.no }}</span>
+              <span style="font-size:12.5px; font-weight:500;">{{ i.party }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:12px;">{{ i.total }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:#3E7A52;">{{ i.paid }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:12px; color:{{ i.dueColor }};">{{ i.due }}</span>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:11px; padding:4px 9px; border-radius:20px; background:{{ i.pillBg }}; color:{{ i.pillFg }}; font-weight:500;">{{ i.state }}</span>
+                <sc-if value="{{ i.canRemind }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ i.remind }}" style="border:1px solid #E3D9C0; background:#FFFCF4; border-radius:5px; padding:3px 8px; font-size:11px; cursor:pointer; color:#4A5344;" style-hover="border-color:#C99A34;">Remind</button>
+                </sc-if>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ═══ TRAVELLER DOCS ═══ -->
+    <sc-if value="{{ isDocs }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:18px 26px 42px; display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:13px; align-items:start;">
+        <sc-for list="{{ docParties }}" as="d" hint-placeholder-count="6">
+          <div style="border:1px solid #E3D9C0; border-radius:11px; background:#FFFCF4; padding:15px 16px; display:flex; flex-direction:column; gap:11px;">
+            <div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px;">
+              <span style="font-size:13.5px; font-weight:600;">{{ d.party }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:#A39A80;">{{ d.ref }}</span>
+            </div>
+            <span style="font-size:11.5px; color:#7B8272;">Departs {{ d.departs }} · {{ d.pax }} travellers</span>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <sc-for list="{{ d.items }}" as="it" hint-placeholder-count="4">
+                <div style="display:flex; align-items:center; gap:9px;">
+                  <span style="width:15px; height:15px; border-radius:4px; background:{{ it.bg }}; color:#FFFCF4; font-size:10px; display:flex; align-items:center; justify-content:center; flex:none;">{{ it.mark }}</span>
+                  <span style="font-size:12.5px; flex:1;">{{ it.label }}</span>
+                  <span style="font-size:11px; color:{{ it.noteColor }};">{{ it.note }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="height:5px; background:#EEE5CF; border-radius:4px; overflow:hidden;">
+              <div style="height:100%; background:{{ d.barColor }}; width:{{ d.pct }};"></div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <!-- ═══ ROUTES & JOURNAL ═══ -->
+    <sc-if value="{{ isContent }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:18px 26px 42px; display:grid; grid-template-columns:1fr 1fr; gap:18px; align-items:start;">
+        <div style="display:flex; flex-direction:column; gap:11px;">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.14em; text-transform:uppercase; color:#8E8A72;">Published routes & fleet</span>
+          <sc-for list="{{ routes }}" as="r" hint-placeholder-count="4">
+            <div style="border:1px solid #E3D9C0; border-radius:11px; background:#FFFCF4; padding:14px 16px; display:flex; gap:14px; align-items:center;">
+              <div style="flex:1; display:flex; flex-direction:column; gap:3px;">
+                <span style="font-family:'DM Sans',sans-serif; font-weight:700; letter-spacing:-0.028em; font-size:17px; line-height:1.25;">{{ r.name }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#8E8A72;">{{ r.meta }}</span>
+                <span style="font-size:11.5px; color:#7B8272;">{{ r.bookings }}</span>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:12.5px;">{{ r.price }}</span>
+                <span style="font-size:10.5px; padding:3px 8px; border-radius:20px; background:{{ r.pillBg }}; color:{{ r.pillFg }};">{{ r.langs }}</span>
+              </div>
+            </div>
+          </sc-for>
+          <div style="border:1px solid #E3D9C0; border-radius:11px; background:#F1E9D5; padding:14px 16px;">
+            <div style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.14em; text-transform:uppercase; color:#8E8A72; margin-bottom:9px;">Translation coverage</div>
+            <sc-for list="{{ langRows }}" as="l" hint-placeholder-count="4">
+              <div style="display:flex; align-items:center; gap:10px; padding:5px 0;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; width:26px;">{{ l.code }}</span>
+                <div style="flex:1; height:5px; background:#E3D9C0; border-radius:4px; overflow:hidden;">
+                  <div style="height:100%; background:{{ l.color }}; width:{{ l.pct }};"></div>
+                </div>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#7B8272; width:64px; text-align:right;">{{ l.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:11px;">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:0.14em; text-transform:uppercase; color:#8E8A72;">Journal queue</span>
+          <sc-for list="{{ posts }}" as="p" hint-placeholder-count="4">
+            <div style="border:1px solid #E3D9C0; border-radius:11px; background:#FFFCF4; padding:13px 15px; display:flex; flex-direction:column; gap:6px;">
+              <div style="display:flex; gap:9px; align-items:center;">
+                <span style="font-size:10.5px; padding:3px 8px; border-radius:20px; background:{{ p.pillBg }}; color:{{ p.pillFg }}; font-weight:500;">{{ p.state }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#8E8A72;">{{ p.kind }} · {{ p.author }}</span>
+                <div style="flex:1;"></div>
+                <sc-if value="{{ p.canPublish }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ p.publish }}" style="border:1px solid #E3D9C0; background:#FFFCF4; border-radius:5px; padding:3px 9px; font-size:11px; cursor:pointer; color:#4A5344;" style-hover="border-color:#C99A34;">Publish</button>
+                </sc-if>
+              </div>
+              <span style="font-size:13.5px; font-weight:500; line-height:1.35;">{{ p.title }}</span>
+              <span style="font-size:11.5px; color:#7B8272;">{{ p.note }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ═══ JOURNAL COMPOSER ═══ -->
+    <sc-if value="{{ isJournal }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid; grid-template-columns:minmax(240px,282px) minmax(430px,1fr); flex:1; min-height:0; overflow-x:auto;">
+        <section style="border-right:1px solid #E3D9C0; background:#F1E9D5; padding:16px 14px 40px; display:flex; flex-direction:column; gap:9px; overflow-y:auto;">
+          <div style="display:flex; align-items:center; gap:8px; padding:0 3px 4px;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#8E8A72; flex:1;">Posts</span>
+            <button onClick="{{ newPost }}" style="border:1px solid #E3D9C0; background:#FFFCF4; border-radius:6px; padding:4px 9px; font-size:11.5px; cursor:pointer; color:#4A5344;" style-hover="border-color:#C99A34;">+ New</button>
+          </div>
+          <sc-for list="{{ postList }}" as="p" hint-placeholder-count="4">
+            <div onClick="{{ p.open }}" style="background:{{ p.bg }}; border:1px solid {{ p.border }}; border-radius:9px; padding:11px 12px; cursor:pointer; display:flex; flex-direction:column; gap:5px;" style-hover="border-color:#C99A34;">
+              <div style="display:flex; align-items:center; gap:7px;">
+                <span style="font-size:10px; padding:2px 7px; border-radius:20px; background:{{ p.pillBg }}; color:{{ p.pillFg }}; font-weight:500;">{{ p.state }}</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:#8E8A72;">{{ p.kind }}</span>
+              </div>
+              <span style="font-size:12.5px; font-weight:500; line-height:1.35;">{{ p.title }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:#8E8A72;">{{ p.words }} words · {{ p.langLabel }}</span>
+            </div>
+          </sc-for>
+        </section>
+
+        <section style="padding:18px 24px 44px; display:flex; flex-direction:column; gap:14px; min-width:0; overflow-y:auto;">
+          <div style="display:flex; gap:9px; align-items:center; flex-wrap:wrap; flex:none;">
+            <sc-for list="{{ langTabs }}" as="l" hint-placeholder-count="4">
+              <div onClick="{{ l.onClick }}" style="cursor:pointer; padding:5px 12px; border-radius:20px; font-size:12px; font-weight:500; border:1px solid {{ l.border }}; background:{{ l.bg }}; color:{{ l.fg }}; display:flex; gap:7px; align-items:center;">
+                <span>{{ l.code }}</span>
+                <span style="width:6px; height:6px; border-radius:50%; background:{{ l.dot }};"></span>
+              </div>
+            </sc-for>
+            <div style="flex:1;"></div>
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8E8A72;">{{ editor.words }} words · {{ editor.readTime }}</span>
+          </div>
+
+          <input value="{{ editor.title }}" onChange="{{ setTitle }}" placeholder="Headline — write it like a road report, not a brochure" style="border:none; outline:none; background:transparent; font-family:'DM Sans',sans-serif; font-size:27px; font-weight:700; letter-spacing:-0.032em; line-height:1.15; color:#22301F; width:100%; padding:0;">
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; flex:none;">
+            <div style="display:flex; flex-direction:column; gap:5px;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:0.13em; text-transform:uppercase; color:#8E8A72;">Category</span>
+              <select value="{{ editor.kind }}" onChange="{{ setKind }}" style="border:1px solid #E3D9C0; background:#FFFCF4; border-radius:7px; padding:8px 10px; font-size:12.5px; color:#22301F; outline:none;">
+                <option>Road report</option><option>Planning</option><option>Driving</option><option>Wildlife</option><option>Traveller story</option>
+              </select>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:5px;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:0.13em; text-transform:uppercase; color:#8E8A72;">Author</span>
+              <select value="{{ editor.author }}" onChange="{{ setAuthor }}" style="border:1px solid #E3D9C0; background:#FFFCF4; border-radius:7px; padding:8px 10px; font-size:12.5px; color:#22301F; outline:none;">
+                <option>Moses Aliker</option><option>Sarah Nakato</option><option>Tai Kamau</option><option>Grace Amongi</option>
+              </select>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:5px;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:0.13em; text-transform:uppercase; color:#8E8A72;">Slug</span>
+              <div style="border:1px solid #E3D9C0; background:#F1E9D5; border-radius:7px; padding:8px 10px; font-family:'IBM Plex Mono',monospace; font-size:11px; color:#7B8272; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">/journal/{{ editor.slug }}</div>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:5px;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:0.13em; text-transform:uppercase; color:#8E8A72;">Standfirst</span>
+            <input value="{{ editor.standfirst }}" onChange="{{ setStandfirst }}" placeholder="One line that earns the click" style="border:1px solid #E3D9C0; background:#FFFCF4; border-radius:7px; padding:9px 11px; font-size:13px; width:100%; color:#22301F; outline:none;">
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:5px; flex:none;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:0.13em; text-transform:uppercase; color:#8E8A72;">Body · {{ editor.lang }}</span>
+            <textarea value="{{ editor.body }}" onChange="{{ setBody }}" placeholder="Write the post. Which roads changed, which permits are tight, what you would tell a traveller on the phone." style="border:1px solid #E3D9C0; background:#FFFCF4; border-radius:9px; padding:13px 14px; font-size:13.5px; line-height:1.65; color:#22301F; outline:none; min-height:220px; resize:vertical; width:100%;"></textarea>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:7px; flex:none;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:0.13em; text-transform:uppercase; color:#8E8A72;">Images</span>
+            <div style="border:1px dashed #CFC3A4; border-radius:9px; background:#F1E9D5; padding:18px; display:flex; align-items:center; gap:14px;">
+              <div style="width:74px; height:52px; border-radius:6px; flex:none; background:repeating-linear-gradient(135deg,#E3D9C0 0 6px,#EEE5CF 6px 12px);"></div>
+              <div style="display:flex; flex-direction:column; gap:3px;">
+                <span style="font-size:12.5px; font-weight:500;">Drop the lead photo here</span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#8E8A72;">landscape · 2400px wide · shot on the route</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:9px; align-items:center; flex-wrap:wrap; padding-top:2px; flex:none;">
+            <button onClick="{{ saveDraft }}" style="border:1px solid #E3D9C0; background:#FFFCF4; border-radius:7px; padding:9px 15px; font-size:12.5px; cursor:pointer; color:#4A5344;" style-hover="border-color:#C99A34;">Save draft</button>
+            <button onClick="{{ publishPost }}" style="border:none; background:#1E3A2B; color:#F7F1E3; border-radius:7px; padding:9px 16px; font-size:12.5px; font-weight:500; cursor:pointer;" style-hover="background:#2A4C37;">{{ publishLabel }}</button>
+            <div style="flex:1;"></div>
+            <span style="font-size:11.5px; color:#7B8272;">{{ editor.saveNote }}</span>
+          </div>
+        </section>
+      </div>
+    </sc-if>
+
+    <!-- ═══ ROUTES & PRICING ═══ -->
+    <sc-if value="{{ isRoutes }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid; grid-template-columns:minmax(230px,268px) minmax(430px,1fr); flex:1; min-height:0; overflow-x:auto;">
+        <section style="border-right:1px solid #E3D9C0; background:#F1E9D5; padding:16px 14px 40px; display:flex; flex-direction:column; gap:9px; overflow-y:auto;">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#8E8A72; padding:0 3px 4px;">Routes on the site</span>
+          <sc-for list="{{ routeList }}" as="r" hint-placeholder-count="4">
+            <div onClick="{{ r.open }}" style="background:{{ r.bg }}; border:1px solid {{ r.border }}; border-radius:9px; padding:11px 12px; cursor:pointer; display:flex; flex-direction:column; gap:4px;" style-hover="border-color:#C99A34;">
+              <span style="font-size:12.5px; font-weight:600; line-height:1.3;">{{ r.name }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:9.5px; color:#8E8A72;">{{ r.meta }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8A6A22;">{{ r.price }}</span>
+            </div>
+          </sc-for>
+        </section>
+
+        <section style="padding:18px 24px 44px; display:flex; flex-direction:column; gap:16px; min-width:0; overflow-y:auto;">
+          <input value="{{ route.name }}" onChange="{{ setRouteName }}" style="border:none; outline:none; background:transparent; font-family:'DM Sans',sans-serif; font-size:26px; font-weight:700; letter-spacing:-0.032em; line-height:1.15; color:#22301F; width:100%; padding:0;">
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(128px,1fr)); gap:10px; flex:none;">
+            <sc-for list="{{ route.fields }}" as="f" hint-placeholder-count="5">
+              <div style="display:flex; flex-direction:column; gap:5px;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:0.13em; text-transform:uppercase; color:#8E8A72;">{{ f.label }}</span>
+                <div style="display:flex; align-items:center; border:1px solid #E3D9C0; background:#FFFCF4; border-radius:7px; padding:0 10px;">
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#8E8A72;">{{ f.prefix }}</span>
+                  <input value="{{ f.value }}" onChange="{{ f.onChange }}" style="border:none; outline:none; background:transparent; font-family:'IBM Plex Mono',monospace; font-size:12.5px; padding:9px 4px; width:100%; color:#22301F;">
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8E8A72; white-space:nowrap;">{{ f.suffix }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="border:1px solid #E3D9C0; border-radius:11px; background:#FFFCF4; overflow:hidden; flex:none;">
+            <div style="display:flex; align-items:center; gap:12px; padding:11px 15px; border-bottom:1px solid #EEE5CF; flex-wrap:wrap;">
+              <span style="font-size:13px; font-weight:600;">Price per vehicle class</span>
+              <div style="flex:1;"></div>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8E8A72;">price · vehicle cost carried · {{ route.currency }}</span>
+            </div>
+            <sc-for list="{{ route.tiers }}" as="t" hint-placeholder-count="3">
+              <div style="display:grid; grid-template-columns:1.2fr 0.8fr 0.8fr 0.7fr; gap:12px; padding:11px 15px; border-bottom:1px solid #F2EBD9; align-items:center; min-width:440px;">
+                <div style="display:flex; flex-direction:column; gap:2px;">
+                  <span style="font-size:12.5px; font-weight:500;">{{ t.vehicle }}</span>
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8E8A72;">{{ t.basis }}</span>
+                </div>
+                <div style="display:flex; align-items:center; border:1px solid #E3D9C0; background:#FFFCF4; border-radius:7px; padding:0 9px;">
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#8E8A72;">{{ route.symbol }}</span>
+                  <input value="{{ t.price }}" onChange="{{ t.onPrice }}" style="border:none; outline:none; background:transparent; font-family:'IBM Plex Mono',monospace; font-size:12.5px; padding:8px 4px; width:100%; color:#22301F;">
+                </div>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#7B8272; white-space:nowrap;">{{ t.margin }}</span>
+                <div onClick="{{ t.toggle }}" style="cursor:pointer; font-size:11px; padding:4px 10px; border-radius:20px; background:{{ t.pillBg }}; color:{{ t.pillFg }}; font-weight:500; justify-self:start;">{{ t.state }}</div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="border:1px solid #E3D9C0; border-radius:11px; background:#FFFCF4; overflow:hidden; flex:none;">
+            <div style="display:flex; align-items:center; gap:12px; padding:11px 15px; border-bottom:1px solid #EEE5CF;">
+              <span style="font-size:13px; font-weight:600;">Day by day</span>
+              <div style="flex:1;"></div>
+              <button onClick="{{ addDay }}" style="border:1px solid #E3D9C0; background:#FFFCF4; border-radius:6px; padding:4px 10px; font-size:11.5px; cursor:pointer; color:#4A5344;" style-hover="border-color:#C99A34;">+ Add day</button>
+            </div>
+            <sc-for list="{{ route.days }}" as="d" hint-placeholder-count="5">
+              <div style="display:grid; grid-template-columns:34px 1.4fr 1.4fr 0.6fr 26px; gap:10px; padding:9px 15px; border-bottom:1px solid #F2EBD9; align-items:center; min-width:480px;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#8E8A72;">{{ d.n }}</span>
+                <input value="{{ d.leg }}" onChange="{{ d.onLeg }}" placeholder="Kampala → Murchison" style="border:1px solid #E3D9C0; background:#FFFCF4; border-radius:6px; padding:7px 9px; font-size:12.5px; width:100%; color:#22301F; outline:none;">
+                <input value="{{ d.lodge }}" onChange="{{ d.onLodge }}" placeholder="Overnight" style="border:1px solid #E3D9C0; background:#FFFCF4; border-radius:6px; padding:7px 9px; font-size:12.5px; width:100%; color:#22301F; outline:none;">
+                <div style="display:flex; align-items:center; border:1px solid #E3D9C0; background:#FFFCF4; border-radius:6px; padding:0 7px;">
+                  <input value="{{ d.km }}" onChange="{{ d.onKm }}" style="border:none; outline:none; background:transparent; font-family:'IBM Plex Mono',monospace; font-size:12px; padding:7px 2px; width:100%; color:#22301F;">
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8E8A72;">km</span>
+                </div>
+                <button onClick="{{ d.remove }}" style="border:1px solid #E3D9C0; background:#FFFCF4; border-radius:6px; width:26px; height:26px; cursor:pointer; color:#A8492B; font-size:13px; line-height:1;" style-hover="border-color:#A8492B;">×</button>
+              </div>
+            </sc-for>
+            <div style="display:flex; gap:16px; padding:10px 15px; background:#F1E9D5;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#4A5344;">{{ route.dayLine }}</span>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#4A5344;">{{ route.kmLine }}</span>
+              <div style="flex:1;"></div>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:{{ route.gapColor }};">{{ route.gapLine }}</span>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:9px; align-items:center; flex-wrap:wrap; flex:none;">
+            <button onClick="{{ saveRoute }}" style="border:1px solid #E3D9C0; background:#FFFCF4; border-radius:7px; padding:9px 15px; font-size:12.5px; cursor:pointer; color:#4A5344;" style-hover="border-color:#C99A34;">Save changes</button>
+            <button onClick="{{ pushRoute }}" style="border:none; background:#1E3A2B; color:#F7F1E3; border-radius:7px; padding:9px 16px; font-size:12.5px; font-weight:500; cursor:pointer;" style-hover="background:#2A4C37;">Push live to goldentai.com</button>
+            <div style="flex:1;"></div>
+            <span style="font-size:11.5px; color:#7B8272;">{{ route.saveNote }}</span>
+          </div>
+        </section>
+      </div>
+    </sc-if>
+
+    <!-- ═══ FLEET DATA ═══ -->
+    <sc-if value="{{ isFleetData }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid; grid-template-columns:minmax(230px,262px) minmax(430px,1fr); flex:1; min-height:0; overflow-x:auto;">
+        <section style="border-right:1px solid #E3D9C0; background:#F1E9D5; padding:16px 14px 40px; display:flex; flex-direction:column; gap:9px; overflow-y:auto;">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:#8E8A72; padding:0 3px 4px;">Our vehicles</span>
+          <sc-for list="{{ vehList }}" as="v" hint-placeholder-count="6">
+            <div onClick="{{ v.open }}" style="background:{{ v.bg }}; border:1px solid {{ v.border }}; border-radius:9px; padding:11px 12px; cursor:pointer; display:flex; flex-direction:column; gap:4px;" style-hover="border-color:#C99A34;">
+              <div style="display:flex; align-items:center; gap:7px;">
+                <span style="width:7px; height:7px; border-radius:50%; background:{{ v.dot }}; flex:none;"></span>
+                <span style="font-size:12.5px; font-weight:600; flex:1;">{{ v.model }}</span>
+              </div>
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:10px; color:#8E8A72;">{{ v.plate }} · {{ v.rate }}</span>
+              <span style="font-size:11px; color:{{ v.stateColor }};">{{ v.state }}</span>
+            </div>
+          </sc-for>
+        </section>
+
+        <section style="padding:18px 24px 44px; display:flex; flex-direction:column; gap:16px; min-width:0; overflow-y:auto;">
+          <div style="display:flex; align-items:flex-end; gap:14px; flex-wrap:wrap;">
+            <input value="{{ veh.model }}" onChange="{{ setVehModel }}" style="border:none; outline:none; background:transparent; font-family:'DM Sans',sans-serif; font-size:26px; font-weight:700; letter-spacing:-0.032em; color:#22301F; padding:0; width:auto; min-width:200px;">
+            <span style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:#8E8A72; padding-bottom:5px;">{{ veh.plate }}</span>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; flex:none;">
+            <sc-for list="{{ veh.fields }}" as="f" hint-placeholder-count="6">
+              <div style="display:flex; flex-direction:column; gap:5px;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:0.13em; text-transform:uppercase; color:#8E8A72;">{{ f.label }}</span>
+                <div style="display:flex; align-items:center; border:1px solid #E3D9C0; background:#FFFCF4; border-radius:7px; padding:0 10px;">
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:#8E8A72;">{{ f.prefix }}</span>
+                  <input value="{{ f.value }}" onChange="{{ f.onChange }}" style="border:none; outline:none; background:transparent; font-family:'IBM Plex Mono',monospace; font-size:12.5px; padding:9px 4px; width:100%; color:#22301F;">
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:11px; color:#8E8A72; white-space:nowrap;">{{ f.suffix }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; align-items:start; flex:none;">
+            <div style="border:1px solid #E3D9C0; border-radius:11px; background:#FFFCF4; padding:15px 16px; display:flex; flex-direction:column; gap:11px;">
+              <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:0.13em; text-transform:uppercase; color:#8E8A72;">Kit on this vehicle</span>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <sc-for list="{{ veh.kit }}" as="k" hint-placeholder-count="8">
+                  <div onClick="{{ k.toggle }}" style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                    <span style="width:16px; height:16px; border-radius:4px; background:{{ k.bg }}; border:1px solid {{ k.border }}; color:#FFFCF4; font-size:10px; display:flex; align-items:center; justify-content:center; flex:none;">{{ k.mark }}</span>
+                    <span style="font-size:12.5px; color:{{ k.fg }}; flex:1;">{{ k.label }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:14px;">
+              <div style="border:1px solid #E3D9C0; border-radius:11px; background:#FFFCF4; padding:15px 16px; display:flex; flex-direction:column; gap:11px;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:0.13em; text-transform:uppercase; color:#8E8A72;">Status on the site</span>
+                <div style="display:flex; gap:7px; flex-wrap:wrap;">
+                  <sc-for list="{{ veh.states }}" as="s" hint-placeholder-count="4">
+                    <div onClick="{{ s.onClick }}" style="cursor:pointer; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:500; border:1px solid {{ s.border }}; background:{{ s.bg }}; color:{{ s.fg }};">{{ s.label }}</div>
+                  </sc-for>
+                </div>
+                <span style="font-size:11.5px; color:#7B8272; line-height:1.5;">{{ veh.stateNote }}</span>
+              </div>
+
+              <div style="border:1px solid #E3D9C0; border-radius:11px; background:#F1E9D5; padding:15px 16px; display:flex; flex-direction:column; gap:9px;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:0.13em; text-transform:uppercase; color:#8E8A72;">Workshop record</span>
+                <sc-for list="{{ veh.service }}" as="s" hint-placeholder-count="4">
+                  <div style="display:flex; gap:10px; align-items:baseline;">
+                    <span style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#8E8A72; width:58px; flex:none;">{{ s.when }}</span>
+                    <span style="font-size:12px; color:#4A5344; line-height:1.45;">{{ s.what }}</span>
+                  </div>
+                </sc-for>
+              </div>
+
+              <div style="border:1px solid #E3D9C0; border-radius:11px; background:#FFFCF4; padding:15px 16px; display:flex; flex-direction:column; gap:7px;">
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:8.5px; letter-spacing:0.13em; text-transform:uppercase; color:#8E8A72;">Fleet page photo</span>
+                <div style="border:1px dashed #CFC3A4; border-radius:8px; height:96px; background:repeating-linear-gradient(135deg,#F1E9D5 0 7px,#EEE5CF 7px 14px); display:flex; align-items:center; justify-content:center;">
+                  <span style="font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:#8E8A72;">drop 3/4 front shot · 1600px</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:9px; align-items:center; flex-wrap:wrap; flex:none;">
+            <button onClick="{{ saveVeh }}" style="border:1px solid #E3D9C0; background:#FFFCF4; border-radius:7px; padding:9px 15px; font-size:12.5px; cursor:pointer; color:#4A5344;" style-hover="border-color:#C99A34;">Save record</button>
+            <button onClick="{{ pushVeh }}" style="border:none; background:#1E3A2B; color:#F7F1E3; border-radius:7px; padding:9px 16px; font-size:12.5px; font-weight:500; cursor:pointer;" style-hover="background:#2A4C37;">Update /fleet page</button>
+            <div style="flex:1;"></div>
+            <span style="font-size:11.5px; color:#7B8272;">{{ veh.saveNote }}</span>
+          </div>
+        </section>
+      </div>
+    </sc-if>
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;pipeline&quot;,&quot;enquiries&quot;,&quot;ops&quot;,&quot;fleet&quot;,&quot;permits&quot;,&quot;lodges&quot;,&quot;payments&quot;,&quot;docs&quot;,&quot;content&quot;],&quot;default&quot;:&quot;pipeline&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Behaviour&quot;},&quot;showMoney&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Behaviour&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;options&quot;:[&quot;#C99A34&quot;,&quot;#B8862F&quot;,&quot;#A8492B&quot;,&quot;#3E7A52&quot;],&quot;default&quot;:&quot;#C99A34&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Brand&quot;}}">
+const GREEN='#1E3A2B', GREEN_MID='#3E7A52', GOLD='#C99A34', GOLD_DK='#8A6A22', CLAY='#A8492B', SAND='#F1E9D5', CREAM='#FFFCF4', LINE='#E3D9C0';
+const PILL = {
+  gold:{bg:'#F8EED6',fg:GOLD_DK}, green:{bg:'#E6EFE2',fg:'#2C5B3D'}, solid:{bg:GREEN,fg:'#EFE7D2'},
+  clay:{bg:'#F7E6DF',fg:CLAY}, mute:{bg:'#F2EBD9',fg:'#8E8A72'}
+};
+
+const DEALS = [
+  {id:1,name:'Marta & Piet Janssen',country:'Netherlands',lang:'NL',source:'Trip builder',dates:'14–28 Nov',pax:2,route:"Uganda's Complete Safari",age:'2h',stage:'enquiry',ref:'GTE-2411',email:'marta.janssen@kpn.nl',nights:14,veh:'Prado',permits:2,paid:0,
+   message:'"We have never driven in Africa. We want gorillas and we do not want to camp. Is 14 days enough if we also want Kidepo? Flying into Entebbe on the 14th."',
+   facts:[{k:'Arrival',v:'14 Nov · EBB 08:40'},{k:'Nights',v:'14'},{k:'Comfort',v:'Lodges only'},{k:'Must see',v:'Gorillas, Kidepo'}],
+   timeline:[{when:'2h ago',what:'Enquiry submitted via trip builder (NL)'},{when:'2h ago',what:'Auto-reply sent in Dutch'},{when:'—',what:'Route draft not started'}],
+   docs:{licence:0,passport:0,insurance:0,briefing:0}},
+  {id:2,name:'Daniel Okoro',country:'United Kingdom',lang:'EN',source:'WhatsApp',dates:'3–17 Oct',pax:4,route:'Northern Frontier Expedition',age:'6h',stage:'quoted',ref:'GTE-2408',email:'d.okoro@gmail.com',nights:14,veh:'Land Cruiser TX',permits:4,paid:0,
+   message:'"Second trip with you. Same Land Cruiser if possible, and we will camp the Karamoja legs again."',
+   facts:[{k:'Arrival',v:'3 Oct · EBB 14:15'},{k:'Nights',v:'14'},{k:'Comfort',v:'Camping + lodges'},{k:'Repeat',v:'Yes · 2024'}],
+   timeline:[{when:'6h ago',what:'WhatsApp enquiry logged by Moses'},{when:'4h ago',what:'Quote v1 sent'},{when:'1h ago',what:'Asked about Kidepo airstrip transfer'}],
+   docs:{licence:4,passport:4,insurance:2,briefing:0}},
+  {id:3,name:'Sophie Lambert',country:'France',lang:'FR',source:'Instagram',dates:'8–19 Dec',pax:3,route:'Gorilla short loop',age:'1d',stage:'quoted',ref:'GTE-2399',email:'s.lambert@orange.fr',nights:11,veh:'Hardtop 7-seat',permits:2,paid:0,
+   message:'"Our daughter is 9. Is the Bwindi road manageable with a child, and can you fit a booster seat?"',
+   facts:[{k:'Arrival',v:'8 Dec · EBB 22:05'},{k:'Nights',v:'11'},{k:'Comfort',v:'Lodges only'},{k:'Note',v:'Child seat needed'}],
+   timeline:[{when:'1d ago',what:'DM moved to enquiry by Sarah'},{when:'20h ago',what:'Quote v1 sent'},{when:'—',what:'Follow-up due tomorrow'}],
+   docs:{licence:2,passport:3,insurance:0,briefing:0}},
+  {id:4,name:'Hannes & Ute Vogel',country:'Germany',lang:'DE',source:'Trip builder',dates:'2–26 Jan',pax:2,route:'Uganda Grand Expedition',age:'1d',stage:'confirmed',ref:'GTE-2390',email:'vogel.h@web.de',nights:24,veh:'Land Cruiser TX',permits:2,paid:0.3,
+   message:'"Deposit sent. Please confirm the Bwindi permits for 12 and 13 January."',
+   facts:[{k:'Arrival',v:'2 Jan · EBB 06:30'},{k:'Nights',v:'24'},{k:'Deposit',v:'30% paid'},{k:'Permits',v:'2 held'}],
+   timeline:[{when:'3d ago',what:'Quote v2 accepted'},{when:'1d ago',what:'Deposit received (Wise)'},{when:'1d ago',what:'Permit hold placed with UWA'}],
+   docs:{licence:2,passport:2,insurance:2,briefing:0}},
+  {id:5,name:'Aiko Tanaka party',country:'Japan',lang:'EN',source:'Referral',dates:'21 Feb – 5 Mar',pax:6,route:'Complete Safari · 2 vehicles',age:'2d',stage:'quoted',ref:'GTE-2384',email:'aiko.t@nifty.jp',nights:13,veh:'2 × Prado',permits:6,paid:0,
+   message:'"Six of us, two vehicles, and we would like an English-speaking guide car for the first three days."',
+   facts:[{k:'Arrival',v:'21 Feb · EBB 13:00'},{k:'Nights',v:'13'},{k:'Vehicles',v:'2'},{k:'Extra',v:'Lead guide, 3 days'}],
+   timeline:[{when:'2d ago',what:'Referral from Marie & Tom (BE)'},{when:'1d ago',what:'Quote v1 sent'},{when:'—',what:'Second vehicle pencilled on UAX 118K'}],
+   docs:{licence:3,passport:6,insurance:0,briefing:0}},
+  {id:6,name:'Rob & Lisa Meyer',country:'United States',lang:'EN',source:'Google',dates:'11–22 Mar',pax:2,route:'Undecided — needs a call',age:'3d',stage:'enquiry',ref:'GTE-2377',email:'rmeyer@fastmail.com',nights:10,veh:'Prado',permits:2,paid:0,
+   message:'"Honestly we do not know where to start. Ten days, first time in Africa, we like driving."',
+   facts:[{k:'Arrival',v:'11 Mar · TBC'},{k:'Nights',v:'10'},{k:'Comfort',v:'Not stated'},{k:'Stage',v:'Needs a call'}],
+   timeline:[{when:'3d ago',what:'Enquiry from organic search'},{when:'2d ago',what:'Intro call offered'},{when:'—',what:'No reply — chase once more'}],
+   docs:{licence:0,passport:0,insurance:0,briefing:0}},
+  {id:7,name:'Marie & Tom Declercq',country:'Belgium',lang:'NL',source:'Repeat',dates:'28 Aug – 11 Sep',pax:2,route:"Uganda's Complete Safari",age:'driving',ref:'GTE-2301',email:'marie.d@telenet.be',nights:15,veh:'Land Cruiser TX',stage:'driving',permits:2,paid:1,
+   message:'"Day 6 and the Murchison ferry queue was shorter than you warned. All good."',
+   facts:[{k:'Day',v:'6 of 15'},{k:'Vehicle',v:'UAX 421J'},{k:'Paid',v:'In full'},{k:'Tonight',v:'Pakuba Lodge'}],
+   timeline:[{when:'6d ago',what:'Handover completed at yard, 08:10'},{when:'2d ago',what:'Ziwa rhino walk confirmed'},{when:'today',what:'Check-in call logged by Moses'}],
+   docs:{licence:2,passport:2,insurance:2,briefing:2}},
+  {id:8,name:'Kowalski party',country:'Poland',lang:'EN',source:'Trip builder',dates:'20 Aug – 3 Sep',pax:4,route:'Northern Frontier Expedition',age:'driving',ref:'GTE-2288',email:'j.kowalski@wp.pl',nights:14,veh:'Land Cruiser TX',stage:'driving',permits:4,paid:1,
+   message:'"Puncture on the Kotido road, spare is on. No panic — the briefing covered it."',
+   facts:[{k:'Day',v:'9 of 14'},{k:'Vehicle',v:'UAX 774M'},{k:'Paid',v:'In full'},{k:'Flag',v:'Tyre replacement'}],
+   timeline:[{when:'8d ago',what:'Handover completed at yard, 07:40'},{when:'today 11:20',what:'Puncture reported — spare fitted'},{when:'today 11:35',what:'Replacement tyre dispatched from Moroto'}],
+   docs:{licence:4,passport:4,insurance:4,briefing:4}},
+  {id:9,name:'Andersson family',country:'Sweden',lang:'EN',source:'Referral',dates:'1–10 Sep',pax:5,route:'Gorilla short loop',age:'driving',ref:'GTE-2295',email:'p.andersson@telia.se',nights:9,veh:'Hardtop 7-seat',stage:'driving',permits:4,paid:1,
+   message:'"The kids loved the crater drive. Ichumbi let us check in early."',
+   facts:[{k:'Day',v:'2 of 9'},{k:'Vehicle',v:'UAZ 660T'},{k:'Paid',v:'In full'},{k:'Tonight',v:'Ichumbi Lodge'}],
+   timeline:[{when:'2d ago',what:'Handover completed at EBB, 13:20'},{when:'1d ago',what:'Booster seats confirmed fitted'},{when:'today',what:'Early check-in agreed with Ichumbi'}],
+   docs:{licence:2,passport:5,insurance:5,briefing:5}},
+  {id:10,name:'Weber & Braun',country:'Germany',lang:'DE',source:'Trip builder',dates:'2–15 Jul',pax:2,route:'Uganda Grand Expedition',age:'closed',ref:'GTE-2140',email:'s.weber@gmx.de',nights:13,veh:'Prado',stage:'done',permits:2,paid:1,
+   message:'"Five stars. The 3am number was answered at 3am. We will be back."',
+   facts:[{k:'Finished',v:'15 Jul'},{k:'Review',v:'5 / 5'},{k:'Balance',v:'Settled'},{k:'Referrals',v:'1'}],
+   timeline:[{when:'15 Jul',what:'Vehicle returned, no damage'},{when:'16 Jul',what:'Final invoice settled'},{when:'18 Jul',what:'Review published to site'}],
+   docs:{licence:2,passport:2,insurance:2,briefing:2}}
+];
+
+const POSTS = [
+  {id:0, title:'The Bwindi road is better than it has been in five years', kind:'Road report', author:'Moses Aliker', state:'Ready',
+   standfirst:'The murram between Butogota and Rushaga was regraded in July. Here is what it means for your driving day.',
+   body:'We drove it twice last month, loaded, in the rain.\n\nThe stretch that used to cost you ninety minutes now takes forty. The regrading held through the first heavy rains, which is the real test — the camber drains properly for the first time since 2021.\n\nWhat has not changed: the last four kilometres to Nkuringo are still steep, still loose, and still not something to attempt in the dark. Leave Queen Elizabeth by 10am and you will arrive in daylight with time to spare.',
+   langs:{EN:1,NL:1,DE:1,FR:0}},
+  {id:1, title:'How far ahead you really need to book a gorilla permit', kind:'Planning', author:'Sarah Nakato', state:'Ready',
+   standfirst:'Not eighteen months. Not two weeks. Here is the honest window, month by month.',
+   body:'UWA releases permits on a rolling basis and the pressure is entirely seasonal.\n\nJune to September and December to February, assume ninety days for Rushaga and Nkuringo. Outside those windows we have placed people inside three weeks.\n\nWhat actually loses you a permit is indecision after the hold is placed — UWA gives us fourteen days, and after that the slot goes back into the pool.',
+   langs:{EN:1,NL:1,DE:0,FR:0}},
+  {id:2, title:'Changing a Land Cruiser tyre, in order, without panicking', kind:'Driving', author:'Tai Kamau', state:'Draft',
+   standfirst:'Eight steps, ten minutes, and the reason we walk every traveller through it in the yard.',
+   body:'Pull off the camber, not onto it. Handbrake, first gear, chock the diagonal wheel.\n\nThe jack lives under the rear seat and the wheelbrace is in the door pocket, not with the jack — we know, we are fixing that.\n\nCrack the nuts before you lift. Every year someone learns this the hard way with the wheel already off the ground.',
+   langs:{EN:1,NL:0,DE:0,FR:0}},
+  {id:3, title:'What the rain does to the Kidepo track in April', kind:'Road report', author:'Moses Aliker', state:'Draft',
+   standfirst:'',
+   body:'Waiting on this season data before we publish anything definitive.',
+   langs:{EN:0,NL:0,DE:0,FR:0}}
+];
+
+const ROUTES_DATA = [
+  {id:0, name:"Uganda's Complete Safari", days:15, km:1675, terrain:'some murram', currency:'USD', symbol:'$', from:3350, live:true,
+   tiers:[['Prado',2380,'2 sharing · lodges',true],['Land Cruiser TX',3350,'2 sharing · rooftop tent',true],['Hardtop 7-seat',2890,'4 sharing · lodges',true]],
+   itinerary:[['Entebbe → Kampala','Boma Guest House',42],['Kampala → Ziwa','Amuka Safari Lodge',176],['Ziwa → Murchison Falls','Pakuba Safari Lodge',108],['Murchison — falls & Nile','Pakuba Safari Lodge',60],['Murchison → Kibale','Primate Lodge',312],['Kibale — chimp trek','Primate Lodge',0],['Kibale → Queen Elizabeth','Elephant Plains',132]]},
+  {id:1, name:'The Northern Frontier Expedition', days:14, km:1500, terrain:'remote', currency:'USD', symbol:'$', from:2690, live:true,
+   tiers:[['Land Cruiser TX · camping',2690,'2 sharing · rooftop tent',true],['Land Cruiser TX · lodges',3480,'2 sharing · lodges',true],['Hardtop 7-seat',3120,'4 sharing · mixed',false]],
+   itinerary:[['Entebbe → Ziwa','Amuka Safari Lodge',168],['Ziwa → Murchison Falls','Pakuba Safari Lodge',108],['Murchison → Gulu','Bomah Hotel',215],['Gulu → Kidepo Valley','Apoka Rest Camp',298],['Kidepo — Narus valley','Apoka Rest Camp',70],['Kidepo → Karamoja','Kara-Tunga Camp',186]]},
+  {id:2, name:'The Uganda Grand Expedition', days:24, km:2373, terrain:'remote', currency:'EUR', symbol:'€', from:3800, live:true,
+   tiers:[['Land Cruiser TX',3800,'2 sharing · rooftop tent',true],['Prado',3420,'2 sharing · lodges',true],['Hardtop 7-seat',4150,'4 sharing · lodges',true]],
+   itinerary:[['Entebbe → Kampala','Boma Guest House',42],['Kampala → Jinja','Wildwaters Lodge',87],['Jinja → Sipi Falls','Sipi River Lodge',204],['Sipi → Karamoja','Kara-Tunga Camp',231],['Karamoja → Kidepo','Apoka Rest Camp',186]]},
+  {id:3, name:'Gorilla short loop', days:9, km:890, terrain:'sealed roads', currency:'USD', symbol:'$', from:2180, live:false,
+   tiers:[['Prado',2180,'2 sharing · lodges',true],['Hardtop 7-seat',2460,'4 sharing · lodges',true],['Land Cruiser TX',2620,'2 sharing · lodges',false]],
+   itinerary:[['Entebbe → Lake Mburo','Rwakobo Rock',228],['Mburo → Bwindi','Ichumbi Gorilla Lodge',241],['Bwindi — gorilla trek','Ichumbi Gorilla Lodge',0],['Bwindi → Lake Bunyonyi','Birdnest Resort',96]]}
+];
+
+const KIT = ['Rooftop tent (2 person)','Ground tent','40L fridge/freezer','Dual battery + inverter','Long-range tank (180L)','Recovery kit + sand tracks','Offline nav tablet','Camp table & chairs','Booster seat','Satellite phone'];
+
+const VEHICLES = [
+  {plate:'UAX 421J', model:'Land Cruiser TX', rate:120, seats:5, gearbox:'Manual', year:2016, odo:214600, service:'12 Oct', state:'On the road',
+   kit:[1,0,1,1,1,1,1,1,0,1], log:[['12 Jul','Full service · 210,000 km'],['2 Aug','New rear shocks, both sides'],['28 Aug','Pre-handover check — passed'],['today','On route with Declercq party']]},
+  {plate:'UAX 118K', model:'Land Cruiser TX', rate:120, seats:5, gearbox:'Manual', year:2017, odo:186200, service:'4 Nov', state:'Available',
+   kit:[1,1,1,1,1,1,1,1,0,1], log:[['20 Jun','Full service · 180,000 km'],['15 Aug','Fridge compressor replaced'],['1 Sep','Pencilled for Tanaka party']]},
+  {plate:'UAY 902R', model:'Prado', rate:95, seats:5, gearbox:'Automatic', year:2018, odo:142800, service:'28 Sep', state:'Available',
+   kit:[0,1,1,1,0,1,1,1,1,0], log:[['3 Jul','Full service · 138,000 km'],['19 Aug','Pop-up roof seal replaced'],['30 Aug','Booster seat fitted']]},
+  {plate:'UAY 355P', model:'Prado', rate:95, seats:5, gearbox:'Automatic', year:2019, odo:98400, service:'—', state:'In workshop',
+   kit:[0,1,1,1,0,1,1,1,1,0], log:[['22 Aug','Clutch judder reported by driver'],['2 Sep','Clutch assembly ordered from Nairobi'],['4 Sep','In workshop — parts ETA 8 Sep']]},
+  {plate:'UAZ 660T', model:'Hardtop 7-seat', rate:140, seats:7, gearbox:'Manual', year:2015, odo:268100, service:'19 Oct', state:'On the road',
+   kit:[0,1,1,1,1,1,1,1,1,1], log:[['8 Jun','Full service · 262,000 km'],['24 Jul','Second ground tent added'],['1 Sep','On route with Andersson family']]},
+  {plate:'UAX 774M', model:'Land Cruiser TX', rate:120, seats:5, gearbox:'Manual', year:2016, odo:231500, service:'6 Nov', state:'On the road',
+   kit:[1,1,1,1,1,1,1,0,0,1], log:[['1 Jul','Full service · 226,000 km'],['today 11:20','Puncture reported, Kotido road'],['today 11:35','Replacement tyre dispatched, Moroto']]}
+];
+
+const RATE = {'Prado':95,'Land Cruiser TX':120,'Hardtop 7-seat':140,'2 × Prado':190};
+const STAGES = [
+  {key:'enquiry',label:'Enquiry',color:GOLD},
+  {key:'quoted',label:'Quoted',color:'#D9B776'},
+  {key:'confirmed',label:'Confirmed',color:GREEN_MID},
+  {key:'driving',label:'Driving',color:GREEN},
+  {key:'done',label:'Done',color:'#A39A80'}
+];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+class Component extends DCLogic {
+  state = { screen:null, filter:'All', selId:1, nights:null, pax:null, extras:2, sent:false,
+            query:'', toast:'', month:8, permitDone:{}, lodgeChased:{}, reminded:{}, published:{},
+            lodgeFilter:'Unconfirmed first',
+            selPost:0, postEdits:{}, postLang:'EN', postNote:'',
+            selRoute:0, routeEdits:{}, routeNote:'',
+            selVeh:0, vehEdits:{}, vehNote:'' };
+
+  post(){ const p = POSTS[this.state.selPost]; return { ...p, ...(this.state.postEdits[p.id]||{}) }; }
+  setPost(patch){ const p = this.post(); this.setState(s=>({ postEdits:{...s.postEdits, [p.id]:{...(s.postEdits[p.id]||{}), ...patch}}, postNote:'Unsaved changes' })); }
+  routeRec(){ const r = ROUTES_DATA[this.state.selRoute]; return { ...r, ...(this.state.routeEdits[r.id]||{}) }; }
+  setRoute(patch){ const r = this.routeRec(); this.setState(s=>({ routeEdits:{...s.routeEdits, [r.id]:{...(s.routeEdits[r.id]||{}), ...patch}}, routeNote:'Unsaved changes' })); }
+  vehRec(){ const v = VEHICLES[this.state.selVeh]; return { ...v, ...(this.state.vehEdits[v.plate]||{}) }; }
+  setVeh(patch){ const v = this.vehRec(); this.setState(s=>({ vehEdits:{...s.vehEdits, [v.plate]:{...(s.vehEdits[v.plate]||{}), ...patch}}, vehNote:'Unsaved changes' })); }
+
+  flash(msg){ clearTimeout(this._t); this.setState({toast:msg}); this._t = setTimeout(()=>this.setState({toast:''}), 2600); }
+  pick(id, go){ const d = DEALS.find(x=>x.id===id); this.setState({selId:id, nights:d.nights, pax:d.pax, extras:2, sent:false, screen: go || 'enquiries'}); }
+  bump(k,delta,min,max){ this.setState(s=>({ [k]: Math.min(max, Math.max(min, (s[k] ?? 0) + delta)), sent:false })); }
+  money(n){ return '$' + Math.round(n).toLocaleString('en-US'); }
+  dealValue(d){ return (RATE[d.veh]||110) * d.nights + 210 * d.nights * d.pax + 1600 * d.pax; }
+
+  journalVals(){
+    const S = this.state, p = this.post();
+    const langs = p.langs || {EN:0,NL:0,DE:0,FR:0};
+    const words = (p.body||'').trim().split(/\s+/).filter(Boolean).length;
+    const slug = (p.title||'untitled').toLowerCase().replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-').slice(0,52);
+    return {
+      postList: POSTS.map((raw,i) => {
+        const d = { ...raw, ...(S.postEdits[raw.id]||{}) };
+        const w = (d.body||'').trim().split(/\s+/).filter(Boolean).length;
+        const pill = d.state==='Published' ? PILL.solid : d.state==='Ready' ? PILL.green : PILL.mute;
+        const on = i===S.selPost;
+        return { title:d.title || 'Untitled post', kind:d.kind, state:d.state, words:w,
+          langLabel: Object.keys(d.langs||{}).filter(k=>(d.langs||{})[k]).join(' ') || 'no translations',
+          pillBg:pill.bg, pillFg:pill.fg, bg: on ? CREAM : 'transparent', border: on ? GOLD : LINE,
+          open: () => this.setState({selPost:i, postLang:'EN', postNote:''}) };
+      }),
+      newPost: () => this.flash('New draft opened — write the headline first'),
+      langTabs: ['EN','NL','DE','FR'].map(code => {
+        const on = S.postLang === code;
+        return { code, onClick: () => this.setState({postLang:code}),
+          bg: on ? GREEN : CREAM, fg: on ? '#F7F1E3' : '#4A5344', border: on ? GREEN : LINE,
+          dot: langs[code] ? GREEN_MID : (on ? '#8FA88B' : '#DFD5BB') };
+      }),
+      editor: { ...p, words, slug, lang: S.postLang,
+        readTime: Math.max(1, Math.round(words/220)) + ' min read',
+        saveNote: S.postNote || (langs[S.postLang] ? S.postLang + ' translation up to date' : S.postLang + ' translation missing') },
+      setTitle: e => this.setPost({title:e.target.value}),
+      setKind: e => this.setPost({kind:e.target.value}),
+      setAuthor: e => this.setPost({author:e.target.value}),
+      setStandfirst: e => this.setPost({standfirst:e.target.value}),
+      setBody: e => this.setPost({body:e.target.value}),
+      saveDraft: () => { this.setPost({state: p.state==='Published' ? 'Published' : 'Draft'}); this.setState({postNote:'Draft saved just now'}); this.flash('Draft saved'); },
+      publishLabel: p.state==='Published' ? 'Update live post' : 'Publish to /journal',
+      publishPost: () => { this.setPost({state:'Published'}); this.setState({postNote:'Live on goldentai.com/journal'}); this.flash('Published — goldentai.com/journal/' + slug); }
+    };
+  }
+
+  routeVals(){
+    const S = this.state, r = this.routeRec();
+    const itin = r.itinerary || [];
+    const totalKm = itin.reduce((a,d)=>a+(+d[2]||0),0);
+    const longest = itin.reduce((a,d)=>Math.max(a,+d[2]||0),0);
+    const editItin = (i, j, val) => {
+      const next = itin.map((row,k) => k===i ? row.map((c,l)=> l===j ? val : c) : row);
+      this.setRoute({itinerary:next});
+    };
+    return {
+      routeList: ROUTES_DATA.map((raw,i) => {
+        const d = { ...raw, ...(S.routeEdits[raw.id]||{}) };
+        const on = i===S.selRoute;
+        return { name:d.name, meta: d.days + ' days · ' + (+d.km).toLocaleString('en-US') + ' km · ' + d.terrain,
+          price: 'from ' + d.symbol + (+d.from).toLocaleString('en-US') + ' pp',
+          bg: on ? CREAM : 'transparent', border: on ? GOLD : LINE,
+          open: () => this.setState({selRoute:i, routeNote:''}) };
+      }),
+      route: {
+        name: r.name, currency: r.currency, symbol: r.symbol,
+        fields: [
+          {label:'Days', value:r.days, prefix:'', suffix:'', onChange: e => this.setRoute({days:e.target.value})},
+          {label:'Distance', value:r.km, prefix:'', suffix:'km', onChange: e => this.setRoute({km:e.target.value})},
+          {label:'Terrain', value:r.terrain, prefix:'', suffix:'', onChange: e => this.setRoute({terrain:e.target.value})},
+          {label:'Headline price', value:r.from, prefix:r.symbol, suffix:'pp', onChange: e => this.setRoute({from:e.target.value})},
+          {label:'Currency', value:r.currency, prefix:'', suffix:'', onChange: e => this.setRoute({currency:e.target.value, symbol: e.target.value.toUpperCase()==='EUR' ? '€' : '$'})}
+        ],
+        tiers: (r.tiers||[]).map((t,i) => {
+          const on = t[3];
+          return { vehicle:t[0], price:t[1], basis:t[2], state: on ? 'Shown on site' : 'Hidden',
+            margin: 'vehicle $' + Math.round((RATE[t[0].split(' · ')[0]]||110)*(+r.days||0)/(+((t[2].match(/(\d+)\s*sharing/)||[0,2])[1]) || 2)).toLocaleString('en-US') + ' of ' + r.symbol + (+t[1]||0).toLocaleString('en-US'),
+            pillBg: on ? PILL.green.bg : PILL.mute.bg, pillFg: on ? PILL.green.fg : PILL.mute.fg,
+            onPrice: e => this.setRoute({tiers: (r.tiers||[]).map((row,k)=> k===i ? [row[0], e.target.value, row[2], row[3]] : row)}),
+            toggle: () => this.setRoute({tiers: (r.tiers||[]).map((row,k)=> k===i ? [row[0], row[1], row[2], !row[3]] : row)}) };
+        }),
+        days: itin.map((d,i) => ({
+          n: i+1, leg:d[0], lodge:d[1], km:d[2],
+          onLeg: e => editItin(i,0,e.target.value),
+          onLodge: e => editItin(i,1,e.target.value),
+          onKm: e => editItin(i,2,e.target.value),
+          remove: () => this.setRoute({itinerary: itin.filter((_,k)=>k!==i)})
+        })),
+        dayLine: itin.length + ' of ' + r.days + ' days entered',
+        kmLine: totalKm.toLocaleString('en-US') + ' of ' + (+r.km).toLocaleString('en-US') + ' km',
+        gapLine: (itin.length >= (+r.days) && totalKm >= (+r.km))
+          ? 'complete · longest day ' + longest + ' km'
+          : ((+r.days) - itin.length) + ' days still to write up',
+        gapColor: (itin.length >= (+r.days) && totalKm >= (+r.km)) ? GOLD_DK : CLAY,
+        saveNote: S.routeNote || (r.live ? 'Live on goldentai.com/routes' : 'Not published yet')
+      },
+      setRouteName: e => this.setRoute({name:e.target.value}),
+      addDay: () => this.setRoute({itinerary:[...itin, ['','',0]]}),
+      saveRoute: () => { this.setState({routeNote:'Saved just now'}); this.flash('Route saved — ' + r.name); },
+      pushRoute: () => { this.setRoute({live:true}); this.setState({routeNote:'Live on goldentai.com/routes'}); this.flash('Pushed live — /routes and the trip builder updated'); }
+    };
+  }
+
+  fleetDataVals(){
+    const S = this.state, v = this.vehRec();
+    const STATE_COLORS = {'Available':GREEN_MID, 'On the road':GREEN, 'In workshop':CLAY, 'Retired':'#A39A80'};
+    const NOTES = {
+      'Available':'Shown on /fleet with live rates and bookable in the trip builder.',
+      'On the road':'Hidden from the availability calendar until the return date.',
+      'In workshop':'Removed from /fleet and blocked in the calendar until the record clears.',
+      'Retired':'Kept for records only — never shown on the site.'
+    };
+    return {
+      vehList: VEHICLES.map((raw,i) => {
+        const d = { ...raw, ...(S.vehEdits[raw.plate]||{}) };
+        const on = i===S.selVeh;
+        return { model:d.model, plate:d.plate, rate:'$'+d.rate+'/day', state:d.state,
+          stateColor: STATE_COLORS[d.state] || '#7B8272', dot: STATE_COLORS[d.state] || '#DFD5BB',
+          bg: on ? CREAM : 'transparent', border: on ? GOLD : LINE,
+          open: () => this.setState({selVeh:i, vehNote:''}) };
+      }),
+      veh: {
+        model:v.model, plate:v.plate,
+        fields: [
+          {label:'Daily rate', value:v.rate, prefix:'$', suffix:'/day', onChange: e => this.setVeh({rate:e.target.value})},
+          {label:'Seats', value:v.seats, prefix:'', suffix:'', onChange: e => this.setVeh({seats:e.target.value})},
+          {label:'Gearbox', value:v.gearbox, prefix:'', suffix:'', onChange: e => this.setVeh({gearbox:e.target.value})},
+          {label:'Year', value:v.year, prefix:'', suffix:'', onChange: e => this.setVeh({year:e.target.value})},
+          {label:'Odometer', value:v.odo, prefix:'', suffix:'km', onChange: e => this.setVeh({odo:e.target.value})},
+          {label:'Next service', value:v.service, prefix:'', suffix:'', onChange: e => this.setVeh({service:e.target.value})}
+        ],
+        kit: KIT.map((label,i) => {
+          const on = (v.kit||[])[i];
+          return { label, mark: on ? '✓' : '', bg: on ? GREEN_MID : 'transparent',
+            border: on ? GREEN_MID : '#CFC3A4', fg: on ? '#22301F' : '#8E8A72',
+            toggle: () => this.setVeh({kit: (v.kit||[]).map((c,k)=> k===i ? (c?0:1) : c)}) };
+        }),
+        states: Object.keys(STATE_COLORS).map(label => {
+          const on = v.state === label;
+          return { label, onClick: () => this.setVeh({state:label}),
+            bg: on ? GREEN : CREAM, fg: on ? '#F7F1E3' : '#4A5344', border: on ? GREEN : LINE };
+        }),
+        stateNote: NOTES[v.state] || '',
+        service: (v.log||[]).map(([when,what]) => ({when, what})),
+        saveNote: S.vehNote || 'Last edited by Robert · 2 Sep'
+      },
+      setVehModel: e => this.setVeh({model:e.target.value}),
+      saveVeh: () => { this.setState({vehNote:'Saved just now'}); this.flash('Record saved — ' + v.plate); },
+      pushVeh: () => { this.setState({vehNote:'/fleet updated just now'}); this.flash('/fleet page updated — ' + v.model + ' at $' + v.rate + '/day'); }
+    };
+  }
+
+  renderVals(){
+    const S = this.state;
+    const M = n => this.props.showMoney === false ? '••••' : this.money(n);
+    const screen = S.screen || this.props.startScreen || 'pipeline';
+    const ACC = this.props.accent || GOLD;
+    const sel = DEALS.find(d=>d.id===S.selId) || DEALS[0];
+    const nights = S.nights ?? sel.nights, pax = S.pax ?? sel.pax;
+    const rate = RATE[sel.veh] || 110;
+    const vehTotal = rate * nights, land = 210 * nights * pax, permits = S.extras * 800 * pax, support = 45 * nights;
+    const total = vehTotal + land + permits + support;
+
+    const heads = {
+      pipeline:['Bookings pipeline','10 live bookings · ' + M(DEALS.filter(d=>d.stage!=='done').reduce((a,d)=>a+this.dealValue(d),0)) + ' in play'],
+      enquiries:['Enquiries & quotes','7 open · 2 need a reply today'],
+      ops:['On the road','3 parties driving · 1 flagged'],
+      fleet:['Fleet calendar','9 vehicles · 71% booked this month'],
+      permits:['Permits & park fees','18 tracked · confirm in deadline order'],
+      lodges:['Lodge bookings','Night-by-night across every live route'],
+      payments:['Payments & invoices','Deposits, balances and what is overdue'],
+      docs:['Traveller documents','Licences, passports, insurance, briefings'],
+      content:['Site overview','4 routes live · 3 posts in queue · translation coverage'],
+      journal:['Journal','Write it, translate it, publish it to /journal'],
+      routes:['Routes & pricing','Set the price, edit the itinerary, push it live'],
+      fleetdata:['Fleet data','Rates, specs, kit lists and workshop records']
+    };
+
+    const navGroups = [
+      {label:'Sell', items:[['pipeline','Pipeline',null],['enquiries','Enquiries',2],['payments','Payments & invoices',null]]},
+      {label:'Run',  items:[['ops','On the road',1],['fleet','Fleet calendar',null],['permits','Permits',3],['lodges','Lodge bookings',2],['docs','Traveller docs',null]]},
+      {label:'Site', items:[['journal','Journal',2],['routes','Routes & pricing',null],['fleetdata','Fleet data',1],['content','Overview',null]]}
+    ].map(g => ({ label:g.label, items: g.items.map(([key,label,badge]) => ({
+      label, badge,
+      badgeBg: key==='ops' ? '#E39A7E' : ACC,
+      onClick: () => this.setState({screen:key}),
+      bg: screen===key ? '#2A4C37' : 'transparent',
+      fg: screen===key ? '#F7F1E3' : '#B7C9B2'
+    }))}));
+
+    // Pipeline
+    const columns = STAGES.map(st => {
+      const cards = DEALS.filter(d=>d.stage===st.key);
+      return {
+        label: st.label, color: st.color, count: cards.length,
+        value: cards.length ? M(cards.reduce((a,d)=>a+this.dealValue(d),0)) : '—',
+        empty: cards.length === 0,
+        cards: cards.map(d => ({
+          party:d.name, ref:d.ref, route:d.route, dates:d.dates, pax:d.pax, lang:d.lang,
+          money: M(this.dealValue(d)), edge: st.color,
+          open: () => this.pick(d.id, d.stage==='driving' ? 'ops' : 'enquiries'),
+          dots: [
+            {tip: d.permits ? 'Permits held' : 'No permits', color: d.stage==='enquiry' ? '#E3D9C0' : GREEN_MID},
+            {tip: 'Lodges', color: d.stage==='enquiry' || d.stage==='quoted' ? '#E3D9C0' : GREEN_MID},
+            {tip: d.paid ? 'Paid' : 'Unpaid', color: d.paid === 1 ? GREEN_MID : d.paid ? GOLD : '#E3D9C0'}
+          ],
+          alert: d.id===8 ? 'Puncture 11:20 — tyre en route' : d.id===1 ? 'No reply sent yet' : d.id===6 ? 'Chased twice, no answer' : null
+        }))
+      };
+    });
+
+    const kpis = [
+      {label:'Open value', value:M(DEALS.filter(d=>d.stage==='enquiry'||d.stage==='quoted').reduce((a,d)=>a+this.dealValue(d),0)), note:'5 quotes out'},
+      {label:'Confirmed', value:M(DEALS.filter(d=>d.stage==='confirmed'||d.stage==='driving').reduce((a,d)=>a+this.dealValue(d),0)), note:'4 bookings'},
+      {label:'Reply time', value:'4.2h', note:'target under 24h'},
+      {label:'Win rate', value:'43%', note:'9 of 21 quotes'},
+      {label:'Avg trip', value:'13 nights', note:'up from 11'}
+    ];
+
+    // Enquiries
+    const openDeals = DEALS.filter(d=>d.stage==='enquiry'||d.stage==='quoted'||d.stage==='confirmed');
+    const counts = {All: openDeals.length, Enquiry:0, Quoted:0, Confirmed:0};
+    openDeals.forEach(d => { const k = d.stage[0].toUpperCase()+d.stage.slice(1); counts[k] = (counts[k]||0)+1; });
+    const filters = ['All','Enquiry','Quoted','Confirmed'].map(label => {
+      const on = S.filter === label;
+      return { label, count: counts[label]||0, onClick: () => this.setState({filter:label}),
+        bg: on ? GREEN : CREAM, fg: on ? '#F7F1E3' : '#4A5344', border: on ? GREEN : LINE };
+    });
+    const q = (S.query||'').trim().toLowerCase();
+    const enquiryRows = openDeals
+      .filter(d => S.filter==='All' ? true : d.stage === S.filter.toLowerCase())
+      .filter(d => !q || (d.name+d.ref+d.route+d.country+d.veh).toLowerCase().includes(q))
+      .map(d => ({
+        name:d.name, country:d.country, source:d.source, dates:d.dates, pax:d.pax, route:d.route, age:d.age,
+        value: M(this.dealValue(d)),
+        open: () => this.pick(d.id),
+        rowBg: d.id===sel.id ? '#F4EDDB' : 'transparent',
+        rowEdge: d.id===sel.id ? ACC : 'transparent',
+        ageColor: d.stage==='enquiry' ? CLAY : '#8E8A72'
+      }));
+
+    // Fleet
+    const plan = [
+      ['Land Cruiser TX','UAX 421J','bbbbbbbbbbbb...hhh...'],
+      ['Land Cruiser TX','UAX 118K','...bbbbbbbbbb.....hhh'],
+      ['Prado','UAY 902R','hhhh....bbbbbbbb.....'],
+      ['Prado','UAY 355P','.....ss.....bbbbbbbbb'],
+      ['Hardtop 7-seat','UAZ 660T','bbbbb.......hhhhh....'],
+      ['Land Cruiser TX','UAX 774M','..hhh...bbbbbbbbbbbbb']
+    ];
+    const CELL = {
+      b:{bg:GREEN_MID,fg:'#EFE7D2',mark:'',tip:'Booked'},
+      h:{bg:'#E4CB94',fg:'#6B531A',mark:'',tip:'Provisional hold'},
+      s:{bg:'#E9CDC2',fg:CLAY,mark:'⚙',tip:'In workshop'},
+      '.':{bg:'#F0E8D4',fg:'#8E8A72',mark:'',tip:'Free'}
+    };
+    const fleetRows = plan.map(([name,plate,str]) => ({
+      name, plate, rate: '$'+(RATE[name]||110)+'/day',
+      cells: str.split('').map((ch,i) => ({ ...CELL[ch], click: () => this.flash(CELL[ch].tip + ' · ' + plate + ' · ' + (i+1) + ' ' + MONTHS[S.month].slice(0,3)) }))
+    }));
+    const days = Array.from({length:21}, (_,i) => ({ n:i+1, color: ((i+2)%7===0 || (i+3)%7===0) ? '#BFB79E' : '#6E7A66' }));
+
+    // Permits
+    const permitData = [
+      ['Bwindi Impenetrable','Gorilla trekking · Rushaga','12 Nov 2026',2,'Vogel (GTE-2390)','in 9 days',true],
+      ['Bwindi Impenetrable','Gorilla trekking · Nkuringo','13 Nov 2026',2,'Vogel (GTE-2390)','in 10 days',true],
+      ['Kibale Forest','Chimpanzee habituation','19 Nov 2026',4,'Okoro (GTE-2408)','in 16 days',true],
+      ['Kidepo Valley','Park entry · 4 nights','22 Nov 2026',4,'Okoro (GTE-2408)','on arrival',false],
+      ['Queen Elizabeth','Tree-lion sector + launch','2 Dec 2026',3,'Lambert (GTE-2399)','in 29 days',false],
+      ['Murchison Falls','Park entry + top of falls','5 Jan 2027',2,'Vogel (GTE-2390)','on arrival',false],
+      ['Lake Mburo','Park entry · walking safari','9 Jan 2027',2,'Vogel (GTE-2390)','on arrival',false]
+    ];
+    const permitsList = permitData.map(([park,activity,date,pax,party,deadline,held],i) => {
+      const done = !!S.permitDone[i];
+      const state = done ? 'Confirmed' : held ? 'Held' : 'Paid';
+      const p = done || !held ? PILL.green : PILL.gold;
+      return { park, activity, date, pax, party, deadline, state,
+        dlColor: (held && !done) ? CLAY : '#8E8A72',
+        pillBg:p.bg, pillFg:p.fg, canConfirm: held && !done,
+        confirm: () => { this.setState(s=>({permitDone:{...s.permitDone,[i]:true}})); this.flash('Permit confirmed with UWA — ' + park); } };
+    });
+    const permitAlertCount = permitsList.filter(p=>p.canConfirm).length;
+
+    // Lodges
+    const lodgeData = [
+      ['4 Sep','Pakuba Safari Lodge','Murchison Falls','Declercq (GTE-2301)',2,'$310','Confirmed'],
+      ['4 Sep','Apoka Rest Camp','Kidepo Valley','Kowalski (GTE-2288)',2,'$240','Unconfirmed'],
+      ['4 Sep','Ichumbi Gorilla Lodge','Bwindi','Andersson (GTE-2295)',3,'$420','Confirmed'],
+      ['5 Sep','Nile Safari Lodge','Murchison Falls','Declercq (GTE-2301)',2,'$380','Confirmed'],
+      ['5 Sep','Kara-Tunga Safari Camp','Karamoja','Kowalski (GTE-2288)',2,'$180','Unconfirmed'],
+      ['6 Sep','Kyaninga Lodge','Fort Portal','Andersson (GTE-2295)',3,'$465','Requested'],
+      ['12 Nov','Gorilla Safari Lodge','Bwindi','Janssen (GTE-2411)',1,'$395','Requested'],
+      ['13 Nov','Elephant Plains','Queen Elizabeth','Janssen (GTE-2411)',1,'$290','Not started']
+    ];
+    const lodgeFilters = ['Unconfirmed first','All nights','Next 7 days'].map(label => {
+      const on = S.lodgeFilter === label;
+      return { label, onClick: () => this.setState({lodgeFilter:label}),
+        bg: on ? GREEN : CREAM, fg: on ? '#F7F1E3' : '#4A5344', border: on ? GREEN : LINE };
+    });
+    const lodgeOrder = {'Unconfirmed':0,'Not started':1,'Requested':2,'Confirmed':3};
+    let lodgeRows = lodgeData.map(([night,lodge,park,party,rooms,rate,st],i) => {
+      const state = S.lodgeChased[i] ? 'Requested' : st;
+      const p = state==='Confirmed' ? PILL.green : state==='Requested' ? PILL.gold : PILL.clay;
+      return { night, lodge, park, party, rooms, rate, state, pillBg:p.bg, pillFg:p.fg,
+        canChase: state!=='Confirmed',
+        _o: lodgeOrder[state] ?? 4,
+        chase: () => { this.setState(s=>({lodgeChased:{...s.lodgeChased,[i]:true}})); this.flash('Chased ' + lodge + ' for ' + night); } };
+    });
+    if (S.lodgeFilter === 'Unconfirmed first') lodgeRows = lodgeRows.slice().sort((a,b)=>a._o-b._o);
+    if (S.lodgeFilter === 'Next 7 days') lodgeRows = lodgeRows.filter(r=>r.night.includes('Sep'));
+
+    // Payments
+    const invData = [
+      ['INV-2390','Vogel (GTE-2390)',18400,5520,'25 Nov','Deposit paid'],
+      ['INV-2301','Declercq (GTE-2301)',11250,11250,'—','Settled'],
+      ['INV-2288','Kowalski (GTE-2288)',15840,15840,'—','Settled'],
+      ['INV-2295','Andersson (GTE-2295)',13100,13100,'—','Settled'],
+      ['INV-2384','Tanaka (GTE-2384)',24960,0,'12 Sep','Awaiting deposit'],
+      ['INV-2140','Weber & Braun (GTE-2140)',9880,9880,'—','Settled']
+    ];
+    const invoices = invData.map(([no,party,total,paid,due,st],i) => {
+      const state = S.reminded[i] ? 'Reminder sent' : st;
+      const p = st==='Settled' ? PILL.green : st==='Deposit paid' ? PILL.gold : S.reminded[i] ? PILL.mute : PILL.clay;
+      return { no, party, total:M(total), paid:M(paid), due: total-paid ? M(total-paid) + ' · ' + due : '—',
+        dueColor: total-paid ? CLAY : '#8E8A72', state, pillBg:p.bg, pillFg:p.fg,
+        canRemind: total-paid > 0 && !S.reminded[i],
+        remind: () => { this.setState(s=>({reminded:{...s.reminded,[i]:true}})); this.flash('Payment reminder emailed — ' + no); } };
+    });
+    const outstanding = invData.reduce((a,r)=>a+(r[2]-r[3]),0);
+    const payStats = [
+      {label:'Collected this month', value:M(49290), note:'4 invoices settled', bg:GREEN, fg:'#EFE7D2'},
+      {label:'Outstanding', value:M(outstanding), note:'2 invoices open', bg:CREAM, fg:'#22301F'},
+      {label:'Overdue', value:M(0), note:'nothing past due', bg:CREAM, fg:'#22301F'},
+      {label:'Avg booking', value:M(15572), note:'up 14% on 2025', bg:CREAM, fg:'#22301F'}
+    ];
+
+    // Docs
+    const docLabels = [['licence','Driving licence + IDP'],['passport','Passport scans'],['insurance','Insurance certificate'],['briefing','Briefing signed off']];
+    const docParties = DEALS.filter(d=>d.stage!=='enquiry' && d.stage!=='done').map(d => {
+      const items = docLabels.map(([k,label]) => {
+        const have = d.docs[k], full = have >= d.pax;
+        return { label, mark: full ? '✓' : have ? '·' : '', bg: full ? GREEN_MID : have ? GOLD : '#DFD5BB',
+          note: full ? 'complete' : have + ' of ' + d.pax, noteColor: full ? '#3E7A52' : have ? GOLD_DK : CLAY };
+      });
+      const got = docLabels.reduce((a,[k])=>a+Math.min(d.docs[k], d.pax),0);
+      const pct = Math.round(100*got/(d.pax*4));
+      const start = d.dates.split('–')[0].trim();
+      const month = (d.dates.match(/[A-Z][a-z]{2}/g) || [''])[0];
+      return { party:d.name, ref:d.ref, departs: /[A-Za-z]/.test(start) ? start : (start + ' ' + month).trim(), pax:d.pax, items,
+        pct: pct + '%', barColor: pct===100 ? GREEN_MID : pct>50 ? GOLD : CLAY };
+    });
+
+    // Content
+    const routes = [
+      {name:"Uganda's Complete Safari", meta:'15 days · 1,675 km · some murram', bookings:'4 booked · 2 quoted', price:'from $3,350', langs:'EN NL DE FR', ...PILL.green},
+      {name:'The Northern Frontier Expedition', meta:'14 days · 1,500 km · remote', bookings:'3 booked · 1 quoted', price:'from $2,690', langs:'EN NL DE', ...PILL.gold},
+      {name:'The Uganda Grand Expedition', meta:'24 days · 2,373 km · remote', bookings:'2 booked', price:'from €3,800', langs:'EN DE', ...PILL.gold},
+      {name:'Gorilla short loop', meta:'9 days · 890 km · sealed roads', bookings:'2 booked · 1 quoted', price:'from $2,180', langs:'EN FR', ...PILL.gold}
+    ].map(r => ({...r, pillBg:r.bg, pillFg:r.fg}));
+    const langRows = [
+      {code:'EN', pct:'100%', label:'44 / 44', color:GREEN_MID},
+      {code:'NL', pct:'82%', label:'36 / 44', color:GREEN_MID},
+      {code:'DE', pct:'61%', label:'27 / 44', color:GOLD},
+      {code:'FR', pct:'39%', label:'17 / 44', color:CLAY}
+    ];
+    const postData = [
+      ['The Bwindi road is better than it has been in five years','Road report','Moses','Ready','Photos in, needs FR translation'],
+      ['How far ahead you really need to book a gorilla permit','Planning','Sarah','Ready','Scheduled for Friday'],
+      ['Changing a Land Cruiser tyre, in order, without panicking','Driving','Tai','Draft','Needs the step photos from the yard'],
+      ['What the rain does to the Kidepo track in April','Road report','Moses','Draft','Waiting on this season data']
+    ];
+    const posts = postData.map(([title,kind,author,st,note],i) => {
+      const state = S.published[i] ? 'Published' : st;
+      const p = state==='Published' ? PILL.solid : state==='Ready' ? PILL.green : PILL.mute;
+      return { title, kind, author, state, note: S.published[i] ? 'Live on goldentai.com/journal' : note,
+        pillBg:p.bg, pillFg:p.fg, canPublish: state==='Ready',
+        publish: () => { this.setState(s=>({published:{...s.published,[i]:true}})); this.flash('Published to /journal — ' + title.slice(0,30) + '…'); } };
+    });
+
+    return {
+      navGroups, onShift:'Moses', toast:S.toast, query:S.query,
+      onQuery: e => this.setState({query:e.target.value}),
+      newEnquiry: () => { this.setState({screen:'enquiries', filter:'All'}); this.flash('Blank enquiry created — GTE-2412'); },
+      title: heads[screen][0], subtitle: heads[screen][1],
+      isPipeline:screen==='pipeline', isEnquiries:screen==='enquiries', isOps:screen==='ops',
+      isFleet:screen==='fleet', isPermits:screen==='permits', isLodges:screen==='lodges',
+      isPayments:screen==='payments', isDocs:screen==='docs', isContent:screen==='content',
+      isJournal:screen==='journal', isRoutes:screen==='routes', isFleetData:screen==='fleetdata',
+      ...this.journalVals(), ...this.routeVals(), ...this.fleetDataVals(),
+      kpis, columns, filters, enquiryRows, noResults: enquiryRows.length===0,
+      sel: { ...sel, stage: sel.stage.toUpperCase() },
+      quote: {
+        perPerson: M(total/pax), total: M(total),
+        rows: [
+          { label: sel.veh, detail: M(vehTotal), value: nights+'d', dec:()=>this.bump('nights',-1,3,30), inc:()=>this.bump('nights',1,3,30) },
+          { label: 'Lodges & meals', detail: M(land), value: pax+'p', dec:()=>this.bump('pax',-1,1,8), inc:()=>this.bump('pax',1,1,8) },
+          { label: 'Permits & park fees', detail: M(permits), value: S.extras, dec:()=>this.bump('extras',-1,0,4), inc:()=>this.bump('extras',1,0,4) },
+          { label: '24/7 road support', detail: M(support), value: 'incl', dec:()=>this.flash('Road support is always included'), inc:()=>this.flash('Road support is always included') }
+        ]
+      },
+      quoteCta: S.sent ? 'Quote sent ✓' : 'Send quote to ' + sel.name.split(' ')[0],
+      sendQuote: () => { this.setState({sent:true}); this.flash('Quote ' + M(total) + ' sent to ' + sel.email); },
+      trips: DEALS.filter(d=>d.stage==='driving').map(d => {
+        const day = d.id===7 ? 6 : d.id===8 ? 9 : 2;
+        const flagged = d.id===8;
+        return { party:d.name, route:d.route + ' · ' + d.lang, plate:d.facts[1].v, vehicle:d.veh,
+          dayLabel:'Day ' + day + ' of ' + d.nights, pct: Math.round(100*day/d.nights) + '%',
+          lodge: d.id===7 ? 'Pakuba Safari Lodge' : d.id===8 ? 'Apoka Rest Camp' : 'Ichumbi Gorilla Lodge',
+          lodgeStatus: flagged ? 'Unconfirmed — call Kidepo' : 'Confirmed · arrival 17:00',
+          lodgeColor: flagged ? CLAY : '#3E7A52',
+          flag: flagged ? 'Puncture 11:20' : 'On track',
+          pillBg: flagged ? PILL.clay.bg : PILL.green.bg, pillFg: flagged ? CLAY : PILL.green.fg,
+          edge: flagged ? CLAY : GREEN_MID,
+          call: () => this.flash('Calling ' + d.name.split(' ')[0] + ' on the satellite number…') };
+      }),
+      incidents: [
+        {what:'Rear left puncture — spare fitted', at:'11:20', where:'Kotido–Kaabong murram', status:'Replacement tyre en route from Moroto'},
+        {what:'Fuel warning · station dry', at:'09:05', where:'Nakapiripirit', status:'Rerouted to Amudat · resolved'},
+        {what:'Missed lodge check-in call', at:'07:40', where:'Apoka', status:'Open · Moses calling park office'}
+      ],
+      handovers: [
+        {who:'Janssen party · Prado', time:'08:00 yard'},
+        {who:'Tanaka party · 2 × Prado', time:'13:30 EBB'},
+        {who:'Return: Declercq · UAX 421J', time:'16:00 yard'}
+      ],
+      crew: [
+        {name:'Moses Aliker', role:'Road support', initials:'MA', avBg:'#E4CB94'},
+        {name:'Sarah Nakato', role:'Trip planning', initials:'SN', avBg:'#B7C9B2'},
+        {name:'Robert Ssemu', role:'Workshop', initials:'RS', avBg:'#E9CDC2'},
+        {name:'Grace Amongi', role:'Front desk', initials:'GA', avBg:'#E4CB94'}
+      ],
+      fleetStats: [
+        {label:'On the road now', value:'3'}, {label:'Free next 7 days', value:'4'},
+        {label:'In workshop', value:'1'}, {label:'Utilisation', value:'71%'}
+      ],
+      legend: [{label:'Booked',color:GREEN_MID},{label:'Hold',color:'#E4CB94'},{label:'Workshop',color:'#E9CDC2'},{label:'Free',color:'#F0E8D4'}],
+      monthLabel: MONTHS[S.month] + ' 2026',
+      prevMonth: () => this.setState(s=>({month:(s.month+11)%12})),
+      nextMonth: () => this.setState(s=>({month:(s.month+1)%12})),
+      days, fleetRows,
+      permits: permitsList, permitAlertCount,
+      confirmAllPermits: () => { const all={}; permitData.forEach((_,i)=>all[i]=true); this.setState({permitDone:all}); this.flash('All held permits confirmed with UWA'); },
+      lodgeFilters, lodgeRows, payStats, invoices, docParties, routes, langRows, posts
+    };
+  }
+}
+
+</script>
+</body>
+</html>
