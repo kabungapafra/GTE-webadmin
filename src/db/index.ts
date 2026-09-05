@@ -1,8 +1,13 @@
+import { mkdirSync } from "fs";
+import { dirname } from "path";
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import * as schema from "./schema";
 
-const sqlite = new Database(process.env.DATABASE_PATH ?? "./data/app.db");
+const dbPath = process.env.DATABASE_PATH ?? "./data/app.db";
+mkdirSync(dirname(dbPath), { recursive: true });
+
+const sqlite = new Database(dbPath);
 sqlite.pragma("journal_mode = WAL");
 sqlite.pragma("foreign_keys = ON");
 
