@@ -1,27 +1,65 @@
-import { createClient } from "@/lib/supabase/server";
+import { desc, asc, eq, gte } from "drizzle-orm";
+import { db } from "@/db";
+import { bookings, vehicles, routes, roadSupportLog, staff, handovers } from "@/db/schema";
 import SupportLogForm from "@/components/SupportLogForm";
 
 export default async function OnTheRoadPage() {
-  const supabase = await createClient();
+  const rows = db
+    .select({
+      id: bookings.id,
+      ref: bookings.ref,
+      party_name: bookings.partyName,
+      arrival_date: bookings.arrivalDate,
+      nights: bookings.nights,
+      lang: bookings.lang,
+      notes: bookings.notes,
+      vehicle_name: vehicles.name,
+      vehicle_plate: vehicles.plate,
+      route_name: routes.name,
+    })
+    .from(bookings)
+    .leftJoin(vehicles, eq(bookings.vehicleId, vehicles.id))
+    .leftJoin(routes, eq(bookings.routeId, routes.id))
+    .where(eq(bookings.stage, "driving"))
+    .all();
 
-  const [{ data: rows }, { data: log }, { data: staff }, { data: handovers }] = await Promise.all([
-    supabase
-      .from("bookings")
-      .select("id, ref, party_name, arrival_date, nights, lang, notes, vehicles(name, plate), routes(name)")
-      .eq("stage", "driving"),
-    supabase.from("road_support_log").select("*, bookings(party_name)").order("occurred_at", { ascending: false }).limit(10),
-    supabase.from("staff").select("name, role").order("name"),
-    supabase.from("handovers").select("*, bookings(party_name), vehicles(name, plate)").gte("scheduled_at", new Date().toISOString()).order("scheduled_at").limit(5),
-  ]);
+  const log = db
+    .select({
+      id: roadSupportLog.id,
+      note: roadSupportLog.note,
+      occurred_at: roadSupportLog.occurredAt,
+      party_name: bookings.partyName,
+    })
+    .from(roadSupportLog)
+    .leftJoin(bookings, eq(roadSupportLog.bookingId, bookings.id))
+    .orderBy(desc(roadSupportLog.occurredAt))
+    .limit(10)
+    .all();
 
-  const driving = (rows ?? []).map((r) => {
-    const vehicle = r.vehicles as unknown as { name: string; plate: string } | null;
-    const route = r.routes as unknown as { name: string } | null;
+  const crew = db.select({ name: staff.name, role: staff.role }).from(staff).orderBy(asc(staff.name)).all();
+
+  const upcomingHandovers = db
+    .select({
+      id: handovers.id,
+      scheduled_at: handovers.scheduledAt,
+      party_name: bookings.partyName,
+      vehicle_plate: vehicles.plate,
+    })
+    .from(handovers)
+    .leftJoin(bookings, eq(handovers.bookingId, bookings.id))
+    .leftJoin(vehicles, eq(handovers.vehicleId, vehicles.id))
+    .where(gte(handovers.scheduledAt, new Date().toISOString()))
+    .orderBy(asc(handovers.scheduledAt))
+    .limit(5)
+    .all();
+
+  const driving = rows.map((r) => {
+    const vehicle = r.vehicle_name ? { name: r.vehicle_name, plate: r.vehicle_plate! } : null;
     const dayNumber = r.arrival_date
       ? Math.min(r.nights ?? 1, Math.max(1, Math.ceil((Date.now() - new Date(r.arrival_date).getTime()) / 86_400_000) + 1))
       : 1;
     const progress = r.nights ? Math.min(100, Math.round((dayNumber / r.nights) * 100)) : 0;
-    return { ...r, vehicle, route_name: route?.name ?? null, dayNumber, progress };
+    return { ...r, vehicle, dayNumber, progress };
   });
 
   return (
@@ -75,40 +113,36 @@ export default async function OnTheRoadPage() {
           <div className="bg-white border border-black/10 rounded p-4">
             <span className="text-[10px] tracking-[0.16em] uppercase text-[#8A8368] font-mono">Support log</span>
             <div className="flex flex-col gap-2.5 mt-3 text-[13px] max-h-64 overflow-y-auto">
-              {(log ?? []).map((entry) => (
+              {log.map((entry) => (
                 <div key={entry.id}>
                   <div className="flex justify-between text-[11px] text-[#8A8368] font-mono">
-                    <span>{(entry.bookings as unknown as { party_name: string } | null)?.party_name ?? "General"}</span>
+                    <span>{entry.party_name ?? "General"}</span>
                     <span>{new Date(entry.occurred_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</span>
                   </div>
                   <p>{entry.note}</p>
                 </div>
               ))}
-              {(log ?? []).length === 0 && <p className="text-[#9C9575] italic">Nothing logged yet.</p>}
+              {log.length === 0 && <p className="text-[#9C9575] italic">Nothing logged yet.</p>}
             </div>
             <div className="mt-3 pt-3 border-t border-black/10">
               <SupportLogForm bookingIds={driving.map((b) => ({ id: b.id, label: b.party_name }))} />
             </div>
           </div>
 
-          {!!handovers?.length && (
+          {!!upcomingHandovers.length && (
             <div className="bg-white border border-black/10 rounded p-4">
               <span className="text-[10px] tracking-[0.16em] uppercase text-[#8A8368] font-mono">Handovers coming up</span>
               <div className="flex flex-col gap-2 mt-3 text-[13px]">
-                {handovers.map((h) => {
-                  const veh = h.vehicles as unknown as { name: string; plate: string } | null;
-                  const party = (h.bookings as unknown as { party_name: string } | null)?.party_name ?? "—";
-                  return (
-                    <div key={h.id} className="flex justify-between">
-                      <span>
-                        {party} · {veh?.plate}
-                      </span>
-                      <span className="font-mono text-[#8A8368]">
-                        {new Date(h.scheduled_at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
-                      </span>
-                    </div>
-                  );
-                })}
+                {upcomingHandovers.map((h) => (
+                  <div key={h.id} className="flex justify-between">
+                    <span>
+                      {h.party_name ?? "—"} · {h.vehicle_plate}
+                    </span>
+                    <span className="font-mono text-[#8A8368]">
+                      {new Date(h.scheduled_at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -116,7 +150,7 @@ export default async function OnTheRoadPage() {
           <div className="bg-white border border-black/10 rounded p-4">
             <span className="text-[10px] tracking-[0.16em] uppercase text-[#8A8368] font-mono">Crew</span>
             <div className="flex flex-col gap-2 mt-3 text-[13px]">
-              {(staff ?? []).map((s) => (
+              {crew.map((s) => (
                 <div key={s.name} className="flex justify-between">
                   <span>{s.name}</span>
                   <span className="text-[#8A8368]">{s.role}</span>

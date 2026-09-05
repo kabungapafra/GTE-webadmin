@@ -26,9 +26,6 @@ jobs:
 
       - run: npm ci
       - run: npm run build
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
   deploy:
     name: Deploy to production
@@ -57,14 +54,16 @@ jobs:
             --exclude '.git' \
             --exclude '.github' \
             --exclude '.env.local' \
+            --exclude 'data' \
             ./ "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
 
-      - name: Install, build, and restart
+      - name: Install, migrate, build, and restart
         run: |
           ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=10 "$SSH_USER@$SSH_HOST" '
             set -e
             cd "'"$DEPLOY_PATH"'"
             npm ci
+            npx drizzle-kit migrate
             npm run build
             pm2 restart golden-tai-admin
           '

@@ -1,8 +1,8 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { Suspense, useActionState } from "react";
+import { useSearchParams } from "next/navigation";
+import { signIn } from "./actions";
 
 export default function LoginPage() {
   return (
@@ -13,35 +13,9 @@ export default function LoginPage() {
 }
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const denied = searchParams.get("denied") === "1";
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-    const supabase = createClient();
-
-    const { error } =
-      mode === "signin"
-        ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({ email, password, options: { data: { name } } });
-
-    setLoading(false);
-    if (error) {
-      setError(error.message);
-      return;
-    }
-    router.push("/");
-    router.refresh();
-  }
+  const [state, formAction, pending] = useActionState(signIn, null);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#F7F1E3] px-4">
@@ -58,68 +32,41 @@ function LoginForm() {
           </div>
         </div>
 
-        <h1 className="text-2xl font-bold text-[#22301F] mb-1">
-          {mode === "signin" ? "Sign in" : "Create your account"}
-        </h1>
-        <p className="text-sm text-[#6B7A6F] mb-6">
-          {mode === "signin"
-            ? "Internal tool — Golden Tai staff only."
-            : "First-time setup for a new team member."}
-        </p>
+        <h1 className="text-2xl font-bold text-[#22301F] mb-1">Sign in</h1>
+        <p className="text-sm text-[#6B7A6F] mb-6">Internal tool — Golden Tai staff only.</p>
 
         {denied && (
           <p className="text-sm bg-amber-50 border border-amber-200 text-amber-800 rounded px-3 py-2.5 mb-4">
-            Your account hasn&apos;t been approved by a team member yet. Ask an existing team member to approve it.
+            Your account isn&apos;t approved for access.
           </p>
         )}
 
-        <form onSubmit={onSubmit} className="flex flex-col gap-3">
-          {mode === "signup" && (
-            <input
-              type="text"
-              required
-              placeholder="Your name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="border border-black/15 rounded px-3 py-2.5 text-sm bg-white outline-none focus:border-[#8A6A22]"
-            />
-          )}
+        <form action={formAction} className="flex flex-col gap-3">
           <input
             type="email"
+            name="email"
             required
             placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
             className="border border-black/15 rounded px-3 py-2.5 text-sm bg-white outline-none focus:border-[#8A6A22]"
           />
           <input
             type="password"
+            name="password"
             required
-            minLength={6}
             placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
             className="border border-black/15 rounded px-3 py-2.5 text-sm bg-white outline-none focus:border-[#8A6A22]"
           />
 
-          {error && <p className="text-sm text-red-700">{error}</p>}
+          {state?.error && <p className="text-sm text-red-700">{state.error}</p>}
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={pending}
             className="mt-1 bg-[#1E3A2B] text-[#EFE7D2] rounded px-4 py-2.5 text-sm font-semibold disabled:opacity-60"
           >
-            {loading ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
+            {pending ? "Please wait…" : "Sign in"}
           </button>
         </form>
-
-        <button
-          type="button"
-          onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-          className="mt-4 text-sm text-[#8A6A22] hover:text-[#B8862F]"
-        >
-          {mode === "signin" ? "New team member? Create an account" : "Already have an account? Sign in"}
-        </button>
       </div>
     </div>
   );

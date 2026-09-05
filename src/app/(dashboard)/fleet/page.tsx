@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { desc, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { vehicles, vehicleWorkshopRecords } from "@/db/schema";
 import FleetDetail from "@/components/FleetDetail";
 
 const STATUS_DOT: Record<string, string> = {
@@ -21,18 +23,33 @@ export default async function FleetPage({
   searchParams: Promise<{ v?: string }>;
 }) {
   const { v } = await searchParams;
-  const supabase = await createClient();
-  const { data: vehicles } = await supabase.from("vehicles").select("*").order("name");
+  const allVehicles = db.select().from(vehicles).orderBy(vehicles.name).all();
+  const veh = allVehicles.map((row) => ({
+    id: row.id,
+    name: row.name,
+    plate: row.plate,
+    daily_rate: row.dailyRate,
+    currency: row.currency,
+    seats: row.seats,
+    gearbox: row.gearbox,
+    year: row.year,
+    odometer: row.odometer,
+    next_service: row.nextService,
+    status: row.status,
+    kit: row.kit as Record<string, boolean>,
+    photo_url: row.photoUrl,
+  }));
 
-  const selected = vehicles?.find((veh) => veh.id === v) ?? vehicles?.[0];
+  const selected = veh.find((v2) => v2.id === v) ?? veh[0];
 
-  const { data: records } = selected
-    ? await supabase
-        .from("vehicle_workshop_records")
-        .select("id, occurred_on, note")
-        .eq("vehicle_id", selected.id)
-        .order("occurred_on", { ascending: false })
-    : { data: [] };
+  const records = selected
+    ? db
+        .select({ id: vehicleWorkshopRecords.id, occurred_on: vehicleWorkshopRecords.occurredOn, note: vehicleWorkshopRecords.note })
+        .from(vehicleWorkshopRecords)
+        .where(eq(vehicleWorkshopRecords.vehicleId, selected.id))
+        .orderBy(desc(vehicleWorkshopRecords.occurredOn))
+        .all()
+    : [];
 
   return (
     <div className="p-8 flex flex-col gap-6 h-full">
@@ -46,31 +63,31 @@ export default async function FleetPage({
           <span className="text-[10px] tracking-[0.16em] uppercase text-[#8A8368] font-mono px-1 mb-1">
             Our vehicles
           </span>
-          {(vehicles ?? []).map((veh) => (
+          {veh.map((v2) => (
             <Link
-              key={veh.id}
-              href={`/fleet?v=${veh.id}`}
+              key={v2.id}
+              href={`/fleet?v=${v2.id}`}
               className={
                 "rounded border px-3 py-2.5 flex flex-col gap-0.5 " +
-                (selected?.id === veh.id ? "bg-white border-[#1E3A2B]" : "bg-white/60 border-black/10 hover:bg-white")
+                (selected?.id === v2.id ? "bg-white border-[#1E3A2B]" : "bg-white/60 border-black/10 hover:bg-white")
               }
             >
               <span className="flex items-center gap-2 text-sm font-medium">
-                <span className={"w-1.5 h-1.5 rounded-full shrink-0 " + STATUS_DOT[veh.status]} />
-                {veh.name}
+                <span className={"w-1.5 h-1.5 rounded-full shrink-0 " + STATUS_DOT[v2.status]} />
+                {v2.name}
               </span>
               <span className="text-[12px] text-[#6B7A6F] pl-3.5">
-                {veh.plate} · {veh.currency}
-                {veh.daily_rate}/day
+                {v2.plate} · {v2.currency}
+                {v2.daily_rate}/day
               </span>
-              <span className="text-[11px] pl-3.5" style={{ color: veh.status === "in_workshop" ? "#B23B2E" : "#6B7A6F" }}>
-                {STATUS_LABEL[veh.status]}
+              <span className="text-[11px] pl-3.5" style={{ color: v2.status === "in_workshop" ? "#B23B2E" : "#6B7A6F" }}>
+                {STATUS_LABEL[v2.status]}
               </span>
             </Link>
           ))}
         </div>
 
-        {selected && <FleetDetail vehicle={selected} records={records ?? []} />}
+        {selected && <FleetDetail vehicle={selected} records={records} />}
       </div>
     </div>
   );

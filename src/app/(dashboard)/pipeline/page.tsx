@@ -1,4 +1,6 @@
-import { createClient } from "@/lib/supabase/server";
+import { desc, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { bookings, routes } from "@/db/schema";
 import BookingCard from "@/components/BookingCard";
 import type { Stage } from "./actions";
 
@@ -11,16 +13,27 @@ const COLUMNS: { id: Stage; label: string }[] = [
 ];
 
 export default async function PipelinePage() {
-  const supabase = await createClient();
-  const { data: bookings } = await supabase
-    .from("bookings")
-    .select("id, ref, party_name, stage, value, currency, lang, pax, notes, arrival_date, nights, routes(name)")
-    .order("created_at", { ascending: false });
+  const bookingRows = db
+    .select({
+      id: bookings.id,
+      ref: bookings.ref,
+      party_name: bookings.partyName,
+      stage: bookings.stage,
+      value: bookings.value,
+      currency: bookings.currency,
+      lang: bookings.lang,
+      pax: bookings.pax,
+      notes: bookings.notes,
+      arrival_date: bookings.arrivalDate,
+      nights: bookings.nights,
+      route_name: routes.name,
+    })
+    .from(bookings)
+    .leftJoin(routes, eq(bookings.routeId, routes.id))
+    .orderBy(desc(bookings.createdAt))
+    .all();
 
-  const rows = (bookings ?? []).map((b) => ({
-    ...b,
-    route_name: (b.routes as unknown as { name: string } | null)?.name ?? null,
-  }));
+  const rows = bookingRows;
 
   const live = rows.filter((b) => b.stage !== "done");
   const openValue = rows.filter((b) => b.stage === "enquiry" || b.stage === "quoted").reduce((s, b) => s + b.value, 0);

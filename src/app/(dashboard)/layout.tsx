@@ -1,28 +1,27 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { count, eq, isNull, ne } from "drizzle-orm";
+import { db } from "@/db";
+import { bookings, permits, lodgeBookings, journalPosts, vehicles, staff, users } from "@/db/schema";
+import { getSessionUserId } from "@/lib/auth";
 import NavLink from "@/components/NavLink";
 import SignOutButton from "@/components/SignOutButton";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const userId = await getSessionUserId();
+  if (!userId) redirect("/login");
 
-  const { data: staff } = await supabase.from("staff").select("name, role, approved").eq("id", user.id).single();
-  if (!staff?.approved) redirect("/auth/deny");
+  const user = db.select().from(users).where(eq(users.id, userId)).get();
+  const staffRow = db.select().from(staff).where(eq(staff.id, userId)).get();
+  if (!staffRow?.approved) redirect("/auth/deny");
 
-  const [enquiries, driving, permits, lodges, journalDrafts, workshop] = await Promise.all([
-    supabase.from("bookings").select("id", { count: "exact", head: true }).eq("stage", "enquiry"),
-    supabase.from("bookings").select("id", { count: "exact", head: true }).eq("stage", "driving"),
-    supabase.from("permits").select("id", { count: "exact", head: true }).eq("status", "pending"),
-    supabase.from("lodge_bookings").select("id", { count: "exact", head: true }).neq("status", "confirmed"),
-    supabase.from("journal_posts").select("id", { count: "exact", head: true }).is("published_at", null),
-    supabase.from("vehicles").select("id", { count: "exact", head: true }).eq("status", "in_workshop"),
-  ]);
+  const enquiries = db.select({ n: count() }).from(bookings).where(eq(bookings.stage, "enquiry")).get();
+  const driving = db.select({ n: count() }).from(bookings).where(eq(bookings.stage, "driving")).get();
+  const pendingPermits = db.select({ n: count() }).from(permits).where(eq(permits.status, "pending")).get();
+  const lodges = db.select({ n: count() }).from(lodgeBookings).where(ne(lodgeBookings.status, "confirmed")).get();
+  const journalDrafts = db.select({ n: count() }).from(journalPosts).where(isNull(journalPosts.publishedAt)).get();
+  const workshop = db.select({ n: count() }).from(vehicles).where(eq(vehicles.status, "in_workshop")).get();
 
-  const initials = (staff?.name ?? user.email ?? "?")
+  const initials = (staffRow?.name ?? user?.email ?? "?")
     .split(/\s+/)
     .map((s: string) => s[0])
     .slice(0, 2)
@@ -46,22 +45,22 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <div className="flex flex-col gap-0.5">
             <span className="px-2.5 text-[10px] tracking-[0.18em] uppercase text-[#6E8A6C] font-mono mb-1">Sell</span>
             <NavLink href="/pipeline" label="Pipeline" />
-            <NavLink href="/enquiries" label="Enquiries" badge={enquiries.count ?? 0} />
+            <NavLink href="/enquiries" label="Enquiries" badge={enquiries?.n ?? 0} />
             <NavLink href="/payments" label="Payments & invoices" />
           </div>
           <div className="flex flex-col gap-0.5">
             <span className="px-2.5 text-[10px] tracking-[0.18em] uppercase text-[#6E8A6C] font-mono mb-1">Run</span>
-            <NavLink href="/on-the-road" label="On the road" badge={driving.count ?? 0} />
+            <NavLink href="/on-the-road" label="On the road" badge={driving?.n ?? 0} />
             <NavLink href="/fleet-calendar" label="Fleet calendar" />
-            <NavLink href="/permits" label="Permits" badge={permits.count ?? 0} />
-            <NavLink href="/lodge-bookings" label="Lodge bookings" badge={lodges.count ?? 0} />
+            <NavLink href="/permits" label="Permits" badge={pendingPermits?.n ?? 0} />
+            <NavLink href="/lodge-bookings" label="Lodge bookings" badge={lodges?.n ?? 0} />
             <NavLink href="/traveller-docs" label="Traveller docs" />
           </div>
           <div className="flex flex-col gap-0.5">
             <span className="px-2.5 text-[10px] tracking-[0.18em] uppercase text-[#6E8A6C] font-mono mb-1">Site</span>
-            <NavLink href="/journal" label="Journal" badge={journalDrafts.count ?? 0} />
+            <NavLink href="/journal" label="Journal" badge={journalDrafts?.n ?? 0} />
             <NavLink href="/routes" label="Routes & pricing" />
-            <NavLink href="/fleet" label="Fleet data" badge={workshop.count ?? 0} />
+            <NavLink href="/fleet" label="Fleet data" badge={workshop?.n ?? 0} />
             <NavLink href="/overview" label="Overview" />
           </div>
         </nav>
@@ -79,8 +78,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
               {initials}
             </div>
             <div className="leading-tight min-w-0">
-              <div className="text-[13px] font-medium truncate">{staff?.name ?? user.email}</div>
-              <div className="text-[11px] text-[#8FA88B] truncate">{staff?.role ?? "Team"}</div>
+              <div className="text-[13px] font-medium truncate">{staffRow?.name ?? user?.email}</div>
+              <div className="text-[11px] text-[#8FA88B] truncate">{staffRow?.role ?? "Team"}</div>
             </div>
           </div>
           <SignOutButton />

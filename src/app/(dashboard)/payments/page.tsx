@@ -1,17 +1,27 @@
-import { createClient } from "@/lib/supabase/server";
+import { desc, eq } from "drizzle-orm";
+import { db } from "@/db";
+import { invoices as invoicesTable, bookings } from "@/db/schema";
 import InvoiceRow from "@/components/InvoiceRow";
 
 export default async function PaymentsPage() {
-  const supabase = await createClient();
-  const { data: rows } = await supabase
-    .from("invoices")
-    .select("*, bookings(party_name)")
-    .order("created_at", { ascending: false });
+  const rows = db
+    .select({
+      id: invoicesTable.id,
+      booking_id: invoicesTable.bookingId,
+      invoice_no: invoicesTable.invoiceNo,
+      total: invoicesTable.total,
+      paid: invoicesTable.paid,
+      due_date: invoicesTable.dueDate,
+      state: invoicesTable.state,
+      created_at: invoicesTable.createdAt,
+      party_name: bookings.partyName,
+    })
+    .from(invoicesTable)
+    .leftJoin(bookings, eq(invoicesTable.bookingId, bookings.id))
+    .orderBy(desc(invoicesTable.createdAt))
+    .all();
 
-  const invoices = (rows ?? []).map((r) => ({
-    ...r,
-    party_name: (r.bookings as unknown as { party_name: string } | null)?.party_name ?? "—",
-  }));
+  const invoices = rows.map((r) => ({ ...r, party_name: r.party_name ?? "—" }));
 
   const now = new Date();
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);

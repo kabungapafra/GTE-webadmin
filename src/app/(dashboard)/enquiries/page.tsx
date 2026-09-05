@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { desc, eq, inArray, asc } from "drizzle-orm";
+import { db } from "@/db";
+import { bookings, routes, quoteLineItems, bookingActivity } from "@/db/schema";
 import QuoteBuilder from "@/components/QuoteBuilder";
 
 function ageLabel(createdAt: string) {
@@ -14,31 +16,53 @@ export default async function EnquiriesPage({
   searchParams: Promise<{ b?: string; stage?: string }>;
 }) {
   const { b, stage } = await searchParams;
-  const supabase = await createClient();
 
-  const { data: rows } = await supabase
-    .from("bookings")
-    .select("id, ref, party_name, country, source, arrival_date, pax, value, currency, created_at, stage, comfort, must_see, notes, routes(name)")
-    .in("stage", ["enquiry", "quoted", "confirmed"])
-    .order("created_at", { ascending: false });
+  const rows = db
+    .select({
+      id: bookings.id,
+      ref: bookings.ref,
+      party_name: bookings.partyName,
+      country: bookings.country,
+      source: bookings.source,
+      arrival_date: bookings.arrivalDate,
+      pax: bookings.pax,
+      value: bookings.value,
+      currency: bookings.currency,
+      created_at: bookings.createdAt,
+      stage: bookings.stage,
+      comfort: bookings.comfort,
+      must_see: bookings.mustSee,
+      notes: bookings.notes,
+      route_name: routes.name,
+    })
+    .from(bookings)
+    .leftJoin(routes, eq(bookings.routeId, routes.id))
+    .where(inArray(bookings.stage, ["enquiry", "quoted", "confirmed"]))
+    .orderBy(desc(bookings.createdAt))
+    .all();
 
-  const bookings = (rows ?? []).map((r) => ({ ...r, route_name: (r.routes as unknown as { name: string } | null)?.name ?? null }));
-  const filtered = stage ? bookings.filter((r) => r.stage === stage) : bookings;
-  const selected = bookings.find((r) => r.id === b) ?? filtered[0];
+  const bookingRows = rows;
+  const filtered = stage ? bookingRows.filter((r) => r.stage === stage) : bookingRows;
+  const selected = bookingRows.find((r) => r.id === b) ?? filtered[0];
 
   const counts = {
-    all: bookings.length,
-    enquiry: bookings.filter((r) => r.stage === "enquiry").length,
-    quoted: bookings.filter((r) => r.stage === "quoted").length,
-    confirmed: bookings.filter((r) => r.stage === "confirmed").length,
+    all: bookingRows.length,
+    enquiry: bookingRows.filter((r) => r.stage === "enquiry").length,
+    quoted: bookingRows.filter((r) => r.stage === "quoted").length,
+    confirmed: bookingRows.filter((r) => r.stage === "confirmed").length,
   };
 
-  const [{ data: lineItems }, { data: activity }] = selected
-    ? await Promise.all([
-        supabase.from("quote_line_items").select("*").eq("booking_id", selected.id).order("sort_order"),
-        supabase.from("booking_activity").select("*").eq("booking_id", selected.id).order("created_at", { ascending: false }),
-      ])
-    : [{ data: [] }, { data: [] }];
+  const lineItems = selected
+    ? db.select().from(quoteLineItems).where(eq(quoteLineItems.bookingId, selected.id)).orderBy(asc(quoteLineItems.sortOrder)).all()
+    : [];
+  const activity = selected
+    ? db
+        .select({ id: bookingActivity.id, booking_id: bookingActivity.bookingId, note: bookingActivity.note, created_at: bookingActivity.createdAt })
+        .from(bookingActivity)
+        .where(eq(bookingActivity.bookingId, selected.id))
+        .orderBy(desc(bookingActivity.createdAt))
+        .all()
+    : [];
 
   const tabs = [
     { id: "", label: "All", count: counts.all },
