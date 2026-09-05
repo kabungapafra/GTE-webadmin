@@ -64,6 +64,7 @@ jobs:
             cd "'"$DEPLOY_PATH"'"
             npm ci
             npx drizzle-kit migrate
+            rm -rf .next
             npm run build
             pm2 restart golden-tai-admin
           '
