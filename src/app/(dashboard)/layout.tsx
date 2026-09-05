@@ -10,7 +10,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: staff } = await supabase.from("staff").select("name, role").eq("id", user.id).single();
+  const { data: staff } = await supabase.from("staff").select("name, role, approved").eq("id", user.id).single();
+  if (!staff?.approved) redirect("/auth/deny");
 
   const [enquiries, driving, permits, lodges, journalDrafts, workshop] = await Promise.all([
     supabase.from("bookings").select("id", { count: "exact", head: true }).eq("stage", "enquiry"),

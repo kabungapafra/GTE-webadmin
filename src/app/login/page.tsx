@@ -1,11 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const denied = searchParams.get("denied") === "1";
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -56,6 +66,12 @@ export default function LoginPage() {
             ? "Internal tool — Golden Tai staff only."
             : "First-time setup for a new team member."}
         </p>
+
+        {denied && (
+          <p className="text-sm bg-amber-50 border border-amber-200 text-amber-800 rounded px-3 py-2.5 mb-4">
+            Your account hasn&apos;t been approved by a team member yet. Ask an existing team member to approve it.
+          </p>
+        )}
 
         <form onSubmit={onSubmit} className="flex flex-col gap-3">
           {mode === "signup" && (
