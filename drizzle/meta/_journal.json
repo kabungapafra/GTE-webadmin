@@ -15,6 +15,13 @@
       "when": 1788775507315,
       "tag": "0001_silky_risque",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1788777595605,
+      "tag": "0002_loud_black_tom",
+      "breakpoints": true
     }
   ]
 }

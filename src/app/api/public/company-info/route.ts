@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
 import { companyInfo } from "@/db/schema";
+import { isAuthorizedPublicRequest } from "@/lib/publicApiAuth";
 
 /**
  * Read-only, unauthenticated-by-login (bearer-token-gated) endpoint the public
@@ -8,9 +9,7 @@ import { companyInfo } from "@/db/schema";
  * /api/public/* from the session-cookie check that guards every other route.
  */
 export async function GET(request: Request) {
-  const expected = process.env.PUBLIC_API_TOKEN;
-  const auth = request.headers.get("authorization");
-  if (!expected || auth !== `Bearer ${expected}`) {
+  if (!isAuthorizedPublicRequest(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

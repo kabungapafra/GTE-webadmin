@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
-import { count, eq, isNull, ne } from "drizzle-orm";
+import { count, eq, isNull } from "drizzle-orm";
 import { db } from "@/db";
-import { bookings, permits, lodgeBookings, journalPosts, vehicles, staff, users } from "@/db/schema";
+import { bookings, journalPosts, vehicles, staff, users } from "@/db/schema";
 import { getSessionUserId } from "@/lib/auth";
 import NavLink from "@/components/NavLink";
 import SignOutButton from "@/components/SignOutButton";
@@ -15,9 +15,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!staffRow?.approved) redirect("/auth/deny");
 
   const enquiries = db.select({ n: count() }).from(bookings).where(eq(bookings.stage, "enquiry")).get();
-  const driving = db.select({ n: count() }).from(bookings).where(eq(bookings.stage, "driving")).get();
-  const pendingPermits = db.select({ n: count() }).from(permits).where(eq(permits.status, "pending")).get();
-  const lodges = db.select({ n: count() }).from(lodgeBookings).where(ne(lodgeBookings.status, "confirmed")).get();
   const journalDrafts = db.select({ n: count() }).from(journalPosts).where(isNull(journalPosts.publishedAt)).get();
   const workshop = db.select({ n: count() }).from(vehicles).where(eq(vehicles.status, "in_workshop")).get();
 
@@ -47,14 +44,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <NavLink href="/pipeline" label="Pipeline" />
             <NavLink href="/enquiries" label="Enquiries" badge={enquiries?.n ?? 0} />
             <NavLink href="/payments" label="Payments & invoices" />
-          </div>
-          <div className="flex flex-col gap-0.5">
-            <span className="px-2.5 text-[10px] tracking-[0.18em] uppercase text-[#6E8A6C] font-mono mb-1">Run</span>
-            <NavLink href="/on-the-road" label="On the road" badge={driving?.n ?? 0} />
-            <NavLink href="/fleet-calendar" label="Fleet calendar" />
-            <NavLink href="/permits" label="Permits" badge={pendingPermits?.n ?? 0} />
-            <NavLink href="/lodge-bookings" label="Lodge bookings" badge={lodges?.n ?? 0} />
-            <NavLink href="/traveller-docs" label="Traveller docs" />
           </div>
           <div className="flex flex-col gap-0.5">
             <span className="px-2.5 text-[10px] tracking-[0.18em] uppercase text-[#6E8A6C] font-mono mb-1">Site</span>

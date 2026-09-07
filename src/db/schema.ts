@@ -66,6 +66,11 @@ export const routes = sqliteTable("routes", {
   bestMonths: text("best_months"),
   included: text("included", { mode: "json" }).notNull().default([]),
   excluded: text("excluded", { mode: "json" }).notNull().default([]),
+  colour: text("colour"),
+  tarmac: integer("tarmac"),
+  image: text("image"),
+  imageFocus: text("image_focus"),
+  photo: text("photo"),
   createdAt: createdAt(),
   updatedAt: createdAt(),
 });
