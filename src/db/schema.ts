@@ -102,6 +102,19 @@ export const journalPosts = sqliteTable("journal_posts", {
   updatedAt: createdAt(),
 });
 
+export const companyInfo = sqliteTable("company_info", {
+  id: text("id").primaryKey(),
+  phone: text("phone").notNull(),
+  whatsapp: text("whatsapp").notNull(),
+  email: text("email").notNull(),
+  instagramUrl: text("instagram_url"),
+  facebookUrl: text("facebook_url"),
+  xUrl: text("x_url"),
+  youtubeUrl: text("youtube_url"),
+  founderName: text("founder_name"),
+  createdAt: createdAt(),
+});
+
 export const bookings = sqliteTable("bookings", {
   id: id(),
   ref: text("ref").notNull().unique(),

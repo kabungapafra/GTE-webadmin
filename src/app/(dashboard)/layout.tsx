@@ -61,6 +61,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <NavLink href="/journal" label="Journal" badge={journalDrafts?.n ?? 0} />
             <NavLink href="/routes" label="Routes & pricing" />
             <NavLink href="/fleet" label="Fleet data" badge={workshop?.n ?? 0} />
+            <NavLink href="/company-info" label="Company info" />
             <NavLink href="/overview" label="Overview" />
           </div>
         </nav>
